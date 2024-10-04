@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne'
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'otcbond',
     'news',
     'rest_framework',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -76,7 +77,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kpaas_rest.wsgi.application'
 
-ASGI_APPLICATION = "kpass_rest.asgi.application"
+ASGI_APPLICATION = 'kpaas_rest.asgi.application'
 
 
 # Database
