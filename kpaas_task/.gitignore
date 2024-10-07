@@ -3,7 +3,7 @@ kis_devlp.yaml
 naver_api.yaml
 KIS2*
 bond_code.*
-
+celerybeat*
 
 ### Django ###
 *.log

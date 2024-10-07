@@ -39,7 +39,7 @@ class KisAuth:
         self.key_bytes = 32
 
         self.config_root = (
-            ".\\koreaib\\kib_api\\"  # 토큰 파일이 저장될 폴더, 제3자가 찾지 어렵도록 경로 설정하시기 바랍니다.
+            ".\\marketbond\\kib_api\\"  # 토큰 파일이 저장될 폴더, 제3자가 찾지 어렵도록 경로 설정하시기 바랍니다.
             # "..\\"
         )
         # token_tmp = config_root + 'KIS000000'  # 토큰 로컬저장시 파일 이름 지정, 파일이름을 토큰값이 유추가능한 파일명은 삼가바랍니다.

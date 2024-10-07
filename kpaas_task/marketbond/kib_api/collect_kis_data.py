@@ -21,7 +21,7 @@ from marketbond.serializer import (
 )
 
 
-from koreaib.kib_api.get_rest_data import GetRestData
+from marketbond.kib_api.get_rest_data import GetRestData
 
 
 class CollectMarketBond:

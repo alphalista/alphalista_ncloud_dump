@@ -142,10 +142,11 @@ CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672/'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_WORKER_POOL = 'solo'  # 윈도우 에러 해결
 
 CELERY_BEAT_SCHEDULE = {
     'example_task': {
-        'task': 'marketbond.tasks.test',
+        'task': 'marketbond.tasks.market_bond_issue_info',
         'schedule': 10.0,  # 10초마다 실행
     },
 }

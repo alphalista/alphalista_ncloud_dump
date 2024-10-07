@@ -1,4 +1,4 @@
-from koreaib.kib_api.kis_auth import KisAuth
+from marketbond.kib_api.kis_auth import KisAuth
 import json
 
 
@@ -26,7 +26,7 @@ class GetRestData:
             params,
         )
         dic = res.getBody().output
-        dic["code"] = self.bond_code.id
+        dic["code"] = self.bond_code
         # data = json.dumps(dic)
         return dic
 
