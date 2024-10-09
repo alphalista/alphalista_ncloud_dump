@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from .models import (
     MarketBondCode,
@@ -12,10 +13,31 @@ from .models import (
     MarketBondInquireDailyPrice,
 )
 
+
+class BulkCreateSerializer(serializers.ListSerializer):
+    @transaction.atomic
+    def create(self, validated_data):
+        codes = [item['code'] for item in validated_data]
+        existing_objects = set(self.child.Meta.model.objects.filter(code__in=codes).values_list('code', flat=True))
+        new_objects = [
+            self.child.Meta.model(**item)
+            for item in validated_data
+            if item['code'] not in existing_objects
+        ]
+        created = self.child.Meta.model.objects.bulk_create(new_objects)
+        return created
+
+
 class MarketBondCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MarketBondCode
         fields = "__all__"
+        extra_kwargs = {
+            'code': {'allow_blank': True},
+            'name': {'allow_blank': True},
+        }
+        list_serializer_class = BulkCreateSerializer
+
 
 
 class MarketBondIssueInfoSerializer(serializers.ModelSerializer):

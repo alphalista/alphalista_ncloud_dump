@@ -1,5 +1,74 @@
 from marketbond.kib_api.kis_auth import KisAuth
 import json
+import pandas as pd
+import urllib.request
+import ssl
+import zipfile
+import os
+
+class GetCodeData:
+    def __init__(self):
+        self.base_dir = os.getcwd()
+        self.url = "https://new.real.download.dws.co.kr/common/master/bond_code.mst.zip"
+        self.zip_filename = "bond_code.zip"
+        self.extracted_filename = "bond_code.mst"
+
+    def get_data(self):
+        file_path = self.download_and_extract_file(self.url, self.base_dir, self.zip_filename, self.extracted_filename)
+        code_name_list = self.get_bond_master_dataframe(file_path)
+        return code_name_list
+
+
+    def download_and_extract_file(self, url, output_dir, zip_filename, extracted_filename):
+        ssl._create_default_https_context = ssl._create_unverified_context
+        zip_filepath = os.path.join(output_dir, zip_filename)
+        urllib.request.urlretrieve(url, zip_filepath)
+        with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
+            zip_ref.extractall(output_dir)
+
+        return os.path.join(output_dir, extracted_filename)
+
+    def get_bond_master_dataframe(self, file_path):
+        with open(file_path, mode="r", encoding="cp949") as f:
+            lines = f.readlines()
+        data = []
+        for row in lines:
+            row = row.strip()
+            bond_type = row[0:2].strip()
+            bond_cls_code = row[2:4].strip()
+            stnd_iscd = row[4:16].strip()
+            rdmp_date = row[-8:].strip()
+            pblc_date = row[-16:-8].strip()
+            lstn_date = row[-24:-16].strip()
+            bond_int_cls_code = row[-26:-24].strip()
+            sname = row[16:-26].rstrip()
+            data.append(
+                [
+                    bond_type,
+                    bond_cls_code,
+                    stnd_iscd,
+                    sname,
+                    bond_int_cls_code,
+                    lstn_date,
+                    pblc_date,
+                    rdmp_date,
+                ]
+            )
+        columns = [
+            "유형",
+            "채권분류코드",
+            "표준코드",
+            "종목명",
+            "채권이자분류코드",
+            "상장일",
+            "발행일",
+            "상환일",
+        ]
+        df = pd.DataFrame(data, columns=columns)
+        unique_pairs = df[['표준코드', '종목명']].drop_duplicates().sort_values('표준코드')
+        code_name_list = [{'code': row['표준코드'], 'name': row['종목명']} for _, row in unique_pairs.iterrows()]
+
+        return code_name_list
 
 
 class GetRestData:

@@ -3,17 +3,35 @@
 
 from celery import shared_task
 from kpaas_task.celery import app
-from marketbond.kib_api.collect_kis_data import CollectMarketBond
+from marketbond.kib_api.collect_kis_data import CollectMarketBond, CollectMarketCode
+from itertools import cycle
+from models import MarketBondCode
+pdno_cycle = None
 
+@shared_task
+def market_bond_code_info():
+    print('start')
+    collector = CollectMarketCode()
+    collector.store_market_codes()
+    print('market codes')
 
 @shared_task()
-def test():
-    print('market')
+def initialize_pdno_list():
+    global pdno_cycle
+    pdno_list = list(MarketBondCode.objects.values_list('pdno', flat=True))
+    pdno_cycle = cycle(pdno_list)
+    print('initialized pdno list')
 
 
 @shared_task()
 def market_bond_issue_info():
-    collector = CollectMarketBond(pdno='KR6150351E98', bond_code='KR6150351E98')
+    global pdno_cycle
+    if pdno_cycle is None:
+        initialize_pdno_list()
+    pdno = next(pdno_cycle)
+
+
+    collector = CollectMarketBond(pdno=pdno, bond_code=pdno)
     collector.store_market_bond_issue_info()
     print('market bond issue info')
 
