@@ -18,6 +18,7 @@ class BulkCreateSerializer(serializers.ListSerializer):
     @transaction.atomic
     def create(self, validated_data):
         codes = [item['code'] for item in validated_data]
+        # save if not in db
         existing_objects = set(self.child.Meta.model.objects.filter(code__in=codes).values_list('code', flat=True))
         new_objects = [
             self.child.Meta.model(**item)

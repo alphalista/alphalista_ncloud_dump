@@ -144,13 +144,15 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_WORKER_POOL = 'solo'  # 윈도우 에러 해결
 
+from celery.schedules import crontab
+
 CELERY_BEAT_SCHEDULE = {
-    'market_code_task': {
+    'market_bond_code_task': {
         'task': 'marketbond.tasks.market_bond_code_info',
-        'schedule': 30.0,
+        'schedule': crontab(minute=0, hour=0),
     },
-    'example_task': {
+    'market_bond_issue_info_task': {
         'task': 'marketbond.tasks.market_bond_issue_info',
-        'schedule': 10.0,  # 10초마다 실행
+        'schedule': 1.0,  # 0.2초마다 실행
     },
 }
