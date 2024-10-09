@@ -10,6 +10,7 @@ from marketbond.models import (
 )
 
 from marketbond.serializer import (
+    MarketBondCodeSerializer,
     MarketBondIssueInfoSerializer,
     MarketBondSearchInfoSerializer,
     MarketBondInquireAskingPriceSerializer,
@@ -21,7 +22,19 @@ from marketbond.serializer import (
 )
 
 
-from marketbond.kib_api.get_rest_data import GetRestData
+from marketbond.kib_api.get_rest_data import GetRestData, GetCodeData
+
+class CollectMarketCode:
+    def __init__(self):
+        self.data_getter = GetCodeData()
+
+
+    def store_market_codes(self):
+        code_name_list = self.data_getter.get_data()
+        serializer = MarketBondCodeSerializer(data=code_name_list, many=True)
+        if serializer.is_valid():
+            serializer.save()
+
 
 
 class CollectMarketBond:
