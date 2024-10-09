@@ -1,4 +1,5 @@
 from marketbond.models import (
+    MarketBondCode,
     MarketBondIssueInfo,
     MarketBondSearchInfo,
     MarketBondInquireAskingPrice,
@@ -44,10 +45,19 @@ class CollectMarketBond:
         self.data_getter = GetRestData(pdno=self.pdno, bond_code=self.bond_code)
 
     def store_market_bond_issue_info(self):
-        data = self.data_getter.get_issue_info()
-        serializer = MarketBondIssueInfoSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
+        if self.bond_code:
+            instance = MarketBondIssueInfo.objects.filter(code=self.bond_code).first()
+            data = self.data_getter.get_issue_info()
+            print(data)
+            if instance:
+                serializer = MarketBondIssueInfoSerializer(instance, data=data)
+            else:
+                serializer = MarketBondIssueInfoSerializer(data=data)
+            print(serializer.is_valid())
+            if serializer.is_valid():
+                serializer.save()
+        else:
+            print('fail')
 
     def store_market_bond_search_info(self):
         data = self.data_getter.get_search_bond_info()

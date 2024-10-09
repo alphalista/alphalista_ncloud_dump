@@ -95,7 +95,7 @@ class GetRestData:
             params,
         )
         dic = res.getBody().output
-        dic["code"] = self.bond_code
+        dic["code"] = self.bond_code.id
         # data = json.dumps(dic)
         return dic
 
