@@ -3,42 +3,36 @@
 
 from celery import shared_task
 from marketbond.kib_api.collect_kis_data import CollectMarketBond, CollectMarketCode
-from itertools import cycle
 from marketbond.models import MarketBondCode
 
-pdno_cycle = None
 
-@shared_task
+@shared_task()
 def market_bond_code_info():
     print('start')
     collector = CollectMarketCode()
     collector.store_market_codes()
-    initialize_pdno_list()
     print('market codes')
 
-@shared_task()
-def initialize_pdno_list():
-    global pdno_cycle
-    pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
-    pdno_cycle = cycle(pdno_list)
-    print('initialized pdno list')
 
-
-@shared_task()
-def market_bond_issue_info():
-    print('market_bond_issue_info')
-    global pdno_cycle
-    if pdno_cycle is None:
-        initialize_pdno_list()
+@shared_task(rate_limit='19/s')
+def fetch_market_bond_issue_info(pdno):
     try:
-        pdno = next(pdno_cycle)
-        print(pdno, 'start', end=' ')
+        print(pdno, 'issue')
         code = MarketBondCode.objects.filter(code=pdno).first()
         collector = CollectMarketBond(pdno=pdno, bond_code=code)
         collector.store_market_bond_issue_info()
-        print('end')
-    except StopIteration:
-        print('pdno not found')
+        print('done issue')
+    except Exception as e:
+        print(e)
+
+@shared_task()
+def market_bond_issue_info():
+    try:
+        pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
+        for pdno in pdno_list:
+            fetch_market_bond_issue_info(pdno)
+    except Exception as e:
+        print(e)
 
 
 @shared_task()
@@ -48,18 +42,44 @@ def market_bond_search_info():
     print('market bond search info')
 
 
+@shared_task(rate_limit='19/s')
+def fetch_market_bond_inquire_asking_price(pdno):
+    try:
+        print(pdno, 'asking')
+        code = MarketBondCode.objects.filter(code=pdno).first()
+        collector = CollectMarketBond(pdno=pdno, bond_code=code)
+        collector.store_market_bond_inquire_asking_price()
+        print('done asking')
+    except Exception as e:
+        print(e)
+
+
 @shared_task()
 def market_bond_inquire_asking_price():
-    collector = CollectMarketBond('KR6150351E98')
-    collector.store_market_bond_inquire_asking_price()
-    print('market bond inquire asking price')
-
+    try:
+        pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
+        for pdno in pdno_list:
+            fetch_market_bond_inquire_asking_price(pdno)
+    except Exception as e:
+        print(e)
 
 @shared_task()
 def market_bond_avg_unit():
     collector = CollectMarketBond('KR6150351E98')
     collector.store_market_bond_avg_unit()
     print('market bond avg unit')
+
+
+@shared_task()
+def fetch_market_bond_inquire_daily_itemchartprice(pdno):
+    try:
+        print(pdno, 'daily')
+        code = MarketBondCode.objects.filter(code=pdno).first()
+        collector = CollectMarketBond(pdno=pdno, bond_code=code)
+        collector.store_market_bond_inquire_daily_itemchartprice()
+        print('done daily')
+    except Exception as e:
+        print(e)
 
 
 @shared_task()
