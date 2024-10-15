@@ -84,9 +84,12 @@ def fetch_market_bond_inquire_daily_itemchartprice(pdno):
 
 @shared_task()
 def market_bond_inquire_daily_itemchartprice():
-    collector = CollectMarketBond('KR6150351E98')
-    collector.store_market_bond_inquire_daily_itemchartprice()
-    print('market bond inquire daily item chart price')
+    try:
+        pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
+        for pdno in pdno_list:
+            fetch_market_bond_inquire_daily_itemchartprice(pdno)
+    except Exception as e:
+        print(e)
 
 
 @shared_task()
