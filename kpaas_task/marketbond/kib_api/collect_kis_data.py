@@ -78,7 +78,8 @@ class CollectMarketBond:
             return serializer.data
 
     def store_market_bond_inquire_daily_itemchartprice(self):
-        data = self.data_getter.get_inquire_daily_itemchartprice()
+        orig_data = self.data_getter.get_inquire_daily_itemchartprice()
+        data = MarketBondInquireDailyItemChartPriceSerializer.filter_new_data(orig_data)
         serializer = MarketBondInquireDailyItemChartPriceSerializer(
             data=data, many=True
         )

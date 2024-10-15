@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
+from django.db.models import Q
+
 
 from .models import (
     MarketBondCode,
@@ -293,6 +295,26 @@ class MarketBondInquireDailyItemChartPriceSerializer(serializers.ModelSerializer
             "bond_prpr": {"allow_blank": True},
             "acml_vol": {"allow_blank": True},
         }
+
+    def validate(self, data):
+        existing = MarketBondInquireDailyItemChartPrice.objects.filter(
+            Q(code=data['code']) & Q(stck_bsop_date=data['stck_bsop_date'])
+        ).exists()
+
+        if existing:
+            raise serializers.ValidationError("This record already exists.")
+        return data
+
+    @classmethod
+    def filter_new_data(cls, data_list):
+        new_data = []
+        existing_records = set(MarketBondInquireDailyItemChartPrice.objects.values_list('code', 'stck_bsop_date'))
+
+        for item in data_list:
+            if (item['code'].pk, item['stck_bsop_date']) not in existing_records:
+                new_data.append(item)
+
+        return new_data
 
 
 class MarketBondInquirePriceSerializer(serializers.ModelSerializer):
