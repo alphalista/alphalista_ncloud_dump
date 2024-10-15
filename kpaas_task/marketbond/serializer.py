@@ -296,25 +296,22 @@ class MarketBondInquireDailyItemChartPriceSerializer(serializers.ModelSerializer
             "acml_vol": {"allow_blank": True},
         }
 
-    def validate(self, data):
-        existing = MarketBondInquireDailyItemChartPrice.objects.filter(
-            Q(code=data['code']) & Q(stck_bsop_date=data['stck_bsop_date'])
-        ).exists()
+    def create(self, validated_data):
+        # validated_data가 리스트가 아닐 경우, 리스트로 변환
+        if not isinstance(validated_data, list):
+            validated_data = [validated_data]
 
-        if existing:
-            raise serializers.ValidationError("This record already exists.")
-        return data
+        created_objects = []
 
-    @classmethod
-    def filter_new_data(cls, data_list):
-        new_data = []
-        existing_records = set(MarketBondInquireDailyItemChartPrice.objects.values_list('code', 'stck_bsop_date'))
+        for data in validated_data:
+            obj, created = MarketBondInquireDailyItemChartPrice.objects.get_or_create(
+                stck_bsop_date=data.get('stck_bsop_date'),
+                code=data.get('code'),
+                defaults=data
+            )
+            created_objects.append(obj)
 
-        for item in data_list:
-            if (item['code'].pk, item['stck_bsop_date']) not in existing_records:
-                new_data.append(item)
-
-        return new_data
+        return created_objects
 
 
 class MarketBondInquirePriceSerializer(serializers.ModelSerializer):

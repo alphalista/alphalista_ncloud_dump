@@ -22,7 +22,6 @@ from marketbond.serializer import (
     MarketBondInquireDailyPriceSerializer,
 )
 
-
 from marketbond.kib_api.get_rest_data import GetRestData, GetCodeData
 
 class CollectMarketCode:
@@ -64,11 +63,17 @@ class CollectMarketBond:
             serializer.save()
 
     def store_market_bond_inquire_asking_price(self):
-        data = self.data_getter.get_inquire_asking_price()
-        serializer = MarketBondInquireAskingPriceSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return serializer.data
+        if self.bond_code:
+            instance = MarketBondInquireAskingPrice.objects.filter(code=self.bond_code).first()
+            data = self.data_getter.get_inquire_asking_price()
+            if instance:
+                serializer = MarketBondInquireAskingPriceSerializer(instance, data=data)
+            else:
+                serializer = MarketBondInquireAskingPriceSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+        else:
+            print('fail')
 
     def store_market_bond_avg_unit(self):
         data = self.data_getter.get_avg_unit()
@@ -78,8 +83,7 @@ class CollectMarketBond:
             return serializer.data
 
     def store_market_bond_inquire_daily_itemchartprice(self):
-        orig_data = self.data_getter.get_inquire_daily_itemchartprice()
-        data = MarketBondInquireDailyItemChartPriceSerializer.filter_new_data(orig_data)
+        data = self.data_getter.get_inquire_daily_itemchartprice()
         serializer = MarketBondInquireDailyItemChartPriceSerializer(
             data=data, many=True
         )

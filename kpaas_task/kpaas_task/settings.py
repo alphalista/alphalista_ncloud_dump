@@ -169,6 +169,13 @@ CELERY_BEAT_SCHEDULE = {
             'expires': 60 * 19
         }
     },
+    'market_bond_inquire_daily_itemchartprice': {
+        'task': 'marketbond.tasks.market_bond_inquire_daily_itemchartprice',
+        'schedule': crontab(minute=30, hour=0),
+        'options': {
+            'expires': 60 * 19
+        }
+    },
     'naver_news_task': {
         'task': 'news.tasks.naver_news',
         'schedule': 60 * 15,
