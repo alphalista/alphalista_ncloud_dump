@@ -402,7 +402,7 @@ class MarketBondInquireDailyItemChartPrice(models.Model):
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=["stck_bsop_date"], name="unique_daily_item_chart_price"
+                fields=["stck_bsop_date", "code"], name="unique_daily_item_chart_price"
             )
         ]
 

@@ -143,6 +143,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_WORKER_POOL = 'solo'  # 윈도우 에러 해결
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 from celery.schedules import crontab
 
@@ -150,9 +151,31 @@ CELERY_BEAT_SCHEDULE = {
     'market_bond_code_task': {
         'task': 'marketbond.tasks.market_bond_code_info',
         'schedule': crontab(minute=0, hour=0),
+        'options': {
+            'expires': 60 * 5
+        }
     },
     'market_bond_issue_info_task': {
         'task': 'marketbond.tasks.market_bond_issue_info',
-        'schedule': 1.0,  # 0.2초마다 실행
+        'schedule': crontab(minute=5, hour=0),
+        'options': {
+            'expires': 60 * 19
+        }
     },
+    'market_bond_inquire_asking_price_task': {
+        'task': 'marketbond.tasks.market_bond_inquire_asking_price',
+        'schedule': crontab(minute='*/30', hour='9-16'),
+        'options': {
+            'expires': 60 * 19
+        }
+    },
+    'naver_news_task': {
+        'task': 'news.tasks.naver_news',
+        'schedule': 60 * 15,
+        'options': {
+            'expires': 60 * 14
+        }
+    }
 }
+
+# late expire
