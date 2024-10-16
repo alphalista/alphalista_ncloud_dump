@@ -18,6 +18,8 @@ dependencies:
   url_launcher: ^6.1.7
   intl: ^0.19.0
   syncfusion_flutter_calendar: ^21.1.35
+  scrollable_positioned_list: ^0.3.5
+  syncfusion_flutter_charts: ^21.1.35
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -25,3 +27,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/FirstLoginImage.png
+    - assets/images/SecondLoginImage.png
