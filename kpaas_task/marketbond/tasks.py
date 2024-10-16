@@ -70,7 +70,7 @@ def market_bond_avg_unit():
     print('market bond avg unit')
 
 
-@shared_task(git )
+@shared_task(rate_limit='19/s')
 def fetch_market_bond_inquire_daily_itemchartprice(pdno):
     try:
         print(pdno, 'daily')
