@@ -1,0 +1,32 @@
+name: kpaas_flutter
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  dio: ^5.0.0
+  get: ^4.6.5
+  fl_chart: ^0.69.0
+  infinite_scroll_pagination: ^4.0.0
+  url_launcher: ^6.1.7
+  intl: ^0.19.0
+  syncfusion_flutter_calendar: ^21.1.35
+  scrollable_positioned_list: ^0.3.5
+  syncfusion_flutter_charts: ^21.1.35
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/FirstLoginImage.png
+    - assets/images/SecondLoginImage.png
