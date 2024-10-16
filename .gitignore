@@ -1,5 +1,11 @@
 ### Credentials ###
+kis_devlp.yaml
+naver_api.yaml
+KIS2*
+bond_code.*
+celerybeat*
 
+migrations/00*
 
 ### Django ###
 *.log
