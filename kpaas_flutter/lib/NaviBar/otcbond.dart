@@ -133,7 +133,7 @@ class _EtBondPageState extends State<OtcBondPage> {
                           color: Colors.grey.withOpacity(0.5), // 그림자 색상
                           spreadRadius: 0,
                           blurRadius: 0,
-                          offset: const Offset(0,0), // 그림자의 위치
+                          offset: const Offset(0,0),
                         ),
                       ],
                     ),
@@ -150,129 +150,134 @@ class _EtBondPageState extends State<OtcBondPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const Text(
-                              "신한투자 증권"
+                            const Padding(
+                              padding: EdgeInsets.only(right: 15.0),
+                              child: Text(
+                                "신한 투자 증권",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),  // 텍스트 사이의 간격
-                        const Row(
-                          children: [
-                            SizedBox(width: 22,),
-                            Column(
-                              children: [
-                                Text(
-                                  '채권 위험도',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                        const SizedBox(height: 8,),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    '채권 위험도',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'B+',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    'B+',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 8,),
-                                Text(
-                                  '잔존 수량',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                                  Text(
+                                    '듀레이션',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '325',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    '3.27',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 54,),
-                            Column(
-                              children: [
-                                Text(
-                                  '신용 등급',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    '신용 등급',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'AAA',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    'AAA',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 8,),
-                                Text(
-                                  '만기일',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                                  Text(
+                                    '만기일',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '27.03.02',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    '27.03.02',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 54,),
-                            Column(
-                              children: [
-                                Text(
-                                  '세후 수익률',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    '세후 수익률',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '4.2%',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    '4.2%',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 8,),
-                                Text(
-                                  '발행일',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                                  Text(
+                                    '발행일',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '23.02.01',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    '23.02.01',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -291,11 +296,13 @@ class _EtBondPageState extends State<OtcBondPage> {
       return const Padding(
         padding: EdgeInsets.all(8.0),
         child: Center(
-          child: CircularProgressIndicator(),  // 로딩 중일 때 인디케이터
+          child: CircularProgressIndicator(),
         ),
       );
     } else {
-      return const SizedBox.shrink();  // 로딩 중이 아닐 때는 빈 공간
+      return const SizedBox.shrink();
     }
   }
 }
+
+

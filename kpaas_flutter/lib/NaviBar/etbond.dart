@@ -147,124 +147,128 @@ class _EtBondPageState extends State<EtBondPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),  // 텍스트 사이의 간격
-                        const Row(
-                          children: [
-                            SizedBox(width: 22,),
-                            Column(
-                              children: [
-                                Text(
-                                  '채권 위험도',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                        const SizedBox(height: 8),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 8.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '잔존 수량',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      'B+',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '듀레이션',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      '3.27',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  'B+',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 7.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '신용 등급',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      'AAA',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '만기일',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      '27.03.02',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 8,),
-                                Text(
-                                  '잔존 수량',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    '세후 수익률',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '325',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    '4.2%',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 54,),
-                            Column(
-                              children: [
-                                Text(
-                                  '신용 등급',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
+                                  Text(
+                                    '발행일',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF696969),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'AAA',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    '23.02.01',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 8,),
-                                Text(
-                                  '만기일',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '27.03.02',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 54,),
-                            Column(
-                              children: [
-                                Text(
-                                  '세후 수익률',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '4.2%',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8,),
-                                Text(
-                                  '발행일',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF696969),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '23.02.01',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -291,3 +295,4 @@ class _EtBondPageState extends State<EtBondPage> {
     }
   }
 }
+
