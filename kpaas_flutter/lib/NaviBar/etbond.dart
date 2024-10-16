@@ -1,64 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:get/get.dart';
+import 'package:kpaas_flutter/apiconnectiontest/data_controller.dart';
+import 'package:kpaas_flutter/bondDescription.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
 
 class EtBondPage extends StatefulWidget {
+  final List<dynamic> initialBondData;  // 처음에 받아온 데이터를 받을 변수
+  final String initialNextUrl;  // 처음 받아온 데이터의 next URL
+
+  const EtBondPage({Key? key, required this.initialBondData, required this.initialNextUrl}) : super(key: key);  // 생성자 추가
+
   @override
   _EtBondPageState createState() => _EtBondPageState();
 }
 
 class _EtBondPageState extends State<EtBondPage> {
-  static const _pageSize = 20;
-
-  final PagingController<int, String> _pagingController = PagingController(firstPageKey: 0);
+  final ScrollController _scrollController = ScrollController();
+  List<dynamic> bondData = [];
+  String? nextUrl;
+  bool isLoading = false;  // 데이터 로딩 상태
+  final DataController dataController = Get.put(DataController());  // DataController 가져오기
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
+    bondData = widget.initialBondData;  // 초기 데이터 설정
+    nextUrl = widget.initialNextUrl;  // 초기 next URL 설정
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading && nextUrl != null) {
+        _fetchMoreData();  // 스크롤이 끝에 도달하면 추가 데이터 요청
+      }
     });
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<void> _fetchMoreData() async {
+    if (nextUrl == null || isLoading) return;
+
+    setState(() {
+      isLoading = true;  // 로딩 상태 시작
+    });
+
     try {
-      final newItems = List.generate(_pageSize, (index) => 'Item ${(pageKey * _pageSize) + index}');
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
+      final response = await dataController.fetchEtBondData(nextUrl!);  // DataController 통해 데이터 요청
+      setState(() {
+        bondData.addAll(response['results']);  // 받아온 데이터 리스트에 추가
+        nextUrl = response['next'];  // 다음 페이지 URL 설정
+      });
+    } catch (e) {
+      print('Error fetching more data: $e');
+    } finally {
+      setState(() {
+        isLoading = false;  // 로딩 상태 종료
+      });
     }
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    _scrollController.dispose();  // 스크롤 컨트롤러 해제
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF1F1F9),
       appBar: AppBar(
+        scrolledUnderElevation: 0.0,
         title: const Text(
           '장내 채권',
           style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.black, // 텍스트 색상 검정
+            fontWeight: FontWeight.bold, // 텍스트 굵게
+            fontSize: 20, // 폰트 크기
           ),
         ),
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
+        backgroundColor: Colors.white, // 앱바 배경색
+        elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.black),
+            icon: const Icon(Icons.account_circle, color: Colors.black), // 사용자 아이콘 추가
             onPressed: () {
+              // 사용자 아이콘 클릭 시 MyPage로 이동
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => MyPage()), // MyPage로 이동
@@ -67,346 +91,203 @@ class _EtBondPageState extends State<EtBondPage> {
           ),
         ],
       ),
-      body: Container(
-        child: CustomScrollView(
-          slivers: [
-            // 검색창과 버튼을 포함한 SliverAppBar
-            SliverAppBar(
-              expandedHeight: 150.0,
-              floating: true,
-              pinned: false,
-              backgroundColor: const Color(0xfff6f6f8),
-              flexibleSpace: Container(
-                color: Color(0xfff6f6f8),
-                child: FlexibleSpaceBar(
-                  background: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.search),
-                            hintText: '검색어를 입력하세요.',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,  // 스크롤 컨트롤러 설정
+              itemCount: bondData.length + 1,  // 데이터 개수 + 로딩 인디케이터
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  // 첫 번째 컨테이너 전에 간격을 추가
+                  return const SizedBox(height: 20);  // 원하는 크기의 간격 설정
+                }
+
+                final actualIndex = index - 1;  // 데이터는 실제로는 1부터 시작
+
+                if (actualIndex == bondData.length) {
+                  return _buildLoadingIndicator();  // 로딩 인디케이터 표시
+                }
+
+                return GestureDetector(
+                  onTap: () {
+                    // 제목 클릭 시 BondDescriptionPage로 이동, bondCode 전달
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BondDescriptionPage(
+                          bondCode: bondData[actualIndex]['code'],  // 채권 코드 전달
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  _showButtonName(context, '전체');
-                                },
-                                child: Text('전체'),
-                              ),
-                              SizedBox(width: 13.5),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _showButtonName(context, '위험도');
-                                },
-                                child: Text('위험도'),
-                              ),
-                              SizedBox(width: 13.5),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _showButtonName(context, '신용 등급');
-                                },
-                                child: Text('신용 등급'),
-                              ),
-                              SizedBox(width: 13.5),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _showButtonName(context, '수익률');
-                                },
-                                child: Text('수익률'),
-                              ),
-                              SizedBox(width: 13.5),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _showButtonName(context, '잔존 수량');
-                                },
-                                child: Text('잔존 수량'),
-                              ),
-                              SizedBox(width: 13.5),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _showButtonName(context, '만기일');
-                                },
-                                child: Text('만기일'),
-                              ),
-                            ],
-                          ),
+                    );
+                  },
+                  child: Container(
+                    height: 200,
+                    margin: const EdgeInsets.symmetric(vertical: 13, horizontal: 30),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white, // 배경 색상
+                      borderRadius: BorderRadius.circular(12), // 둥근 모서리
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5), // 그림자 색상
+                          spreadRadius: 0,
+                          blurRadius: 0,
+                          offset: const Offset(0,0), // 그림자의 위치
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            PagedSliverList<int, String>(
-              pagingController: _pagingController,
-              builderDelegate: PagedChildBuilderDelegate<String>(
-                itemBuilder: (context, item, index) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22.0),
+                      ],
                     ),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 20.0,
-                            offset: Offset(4, 4),
-                          ),
-                        ],
-                      ),
-                      child: const SizedBox(
-                        height: 250,
-                        width: 320,
-                        child: ListTile(
-                          title: Text(
-                            "a24ctr 미국",
-                            style: TextStyle(
-                              fontSize: 35,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Column(
-                            children: [
-                              SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '채권 위험도',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Color(0xff696969),
-                                        ),
-                                      ),
-                                      Text(
-                                        "B+",
-                                        style: TextStyle(
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 40),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '신용 등급',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Color(0xff696969),
-                                        ),
-                                      ),
-                                      Text(
-                                        "AAA",
-                                        style: TextStyle(
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 40),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '세후 수익률',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Color(0xff696969),
-                                        ),
-                                      ),
-                                      Text(
-                                        "4.2%",
-                                        style: TextStyle(
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(width: 27.5),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '잔존 수량',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Color(0xff696969),
-                                        ),
-                                      ),
-                                      Text(
-                                        "325",
-                                        style: TextStyle(
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 40),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '만기일',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Color(0xff696969),
-                                        ),
-                                      ),
-                                      Text(
-                                        "27.03.02",
-                                        style: TextStyle(
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 40),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '발행일',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Color(0xff696969),
-                                        ),
-                                      ),
-                                      Text(
-                                        "23.02.11",
-                                        style: TextStyle(
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          bondData[actualIndex]['name'],  // 채권명
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 8),  // 텍스트 사이의 간격
+                        const Row(
+                          children: [
+                            SizedBox(width: 22,),
+                            Column(
+                              children: [
+                                Text(
+                                  '채권 위험도',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF696969),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  'B+',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8,),
+                                Text(
+                                  '잔존 수량',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF696969),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  '325',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 54,),
+                            Column(
+                              children: [
+                                Text(
+                                  '신용 등급',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF696969),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  'AAA',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8,),
+                                Text(
+                                  '만기일',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF696969),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  '27.03.02',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 54,),
+                            Column(
+                              children: [
+                                Text(
+                                  '세후 수익률',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF696969),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  '4.2%',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8,),
+                                Text(
+                                  '발행일',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF696969),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  '23.02.01',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  void _showButtonName(BuildContext context, String buttonName) {
-    List<Widget> buttonList;
-    switch (buttonName) {
-      case '전체':
-        buttonList = [ElevatedButton(onPressed: () {}, child: Text('Option 1 for 전체'))];
-        break;
-      case '위험도':
-        buttonList = [
-          ElevatedButton(onPressed: () {}, child: Text('AAA')),
-          ElevatedButton(onPressed: () {}, child: Text('AA')),
-          ElevatedButton(onPressed: () {}, child: Text('A')),
-          ElevatedButton(onPressed: () {}, child: Text('BBB')),
-          ElevatedButton(onPressed: () {}, child: Text('BB')),
-          ElevatedButton(onPressed: () {}, child: Text('B')),
-          ElevatedButton(onPressed: () {}, child: Text('CCC 이하')),
-        ];
-        break;
-      case '신용 등급':
-        buttonList = [
-          ElevatedButton(onPressed: () {}, child: Text('AAA')),
-          ElevatedButton(onPressed: () {}, child: Text('AA')),
-          ElevatedButton(onPressed: () {}, child: Text('A')),
-          ElevatedButton(onPressed: () {}, child: Text('BBB')),
-          ElevatedButton(onPressed: () {}, child: Text('BB')),
-          ElevatedButton(onPressed: () {}, child: Text('B')),
-          ElevatedButton(onPressed: () {}, child: Text('CCC 이하')),
-        ];
-        break;
-      case '수익률':
-        buttonList = [
-          ElevatedButton(onPressed: () {}, child: Text('오름차순')),
-          ElevatedButton(onPressed: () {}, child: Text('내림차순')),
-        ];
-        break;
-      case '잔존 수량':
-        buttonList = [
-          ElevatedButton(onPressed: () {}, child: Text('오름차순')),
-          ElevatedButton(onPressed: () {}, child: Text('내림차순')),
-        ];
-        break;
-      case '만기일':
-        buttonList = [
-          ElevatedButton(onPressed: () {}, child: Text('만기 5년 이내')),
-          ElevatedButton(onPressed: () {}, child: Text('만기 3년 이내')),
-          ElevatedButton(onPressed: () {}, child: Text('만기 1년 이내')),
-          ElevatedButton(onPressed: () {}, child: Text('만기 6개월 이내')),
-          ElevatedButton(onPressed: () {}, child: Text('만기 오름차순')),
-          ElevatedButton(onPressed: () {}, child: Text('만기 내림차순')),
-        ];
-        break;
-      default:
-        buttonList = [];
-        break;
+  Widget _buildLoadingIndicator() {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Center(
+          child: CircularProgressIndicator(),  // 로딩 중일 때 인디케이터
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();  // 로딩 중이 아닐 때는 빈 공간
     }
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 200,
-          color: Colors.white,
-          child: Center(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: buttonList,
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 }
