@@ -20,6 +20,8 @@ dependencies:
   syncfusion_flutter_calendar: ^21.1.35
   scrollable_positioned_list: ^0.3.5
   syncfusion_flutter_charts: ^21.1.35
+  flutter_dotenv: ^5.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
