@@ -1,346 +1,230 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:kpaas_flutter/apiconnectiontest/data_controller.dart';
+import 'package:dio/dio.dart';
+import 'apiconnectiontest/dummy_data.dart';
+import 'dart:convert';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
 
-void main() => runApp(BondDescription());
 
-class BondDescription extends StatefulWidget {
+class BondDescriptionPage extends StatefulWidget {
+  final String bondCode;
+
+  const BondDescriptionPage({Key? key, required this.bondCode}) : super(key: key);
+
   @override
-  _BondDescriptionState createState() => _BondDescriptionState();
+  _BondDescriptionPageState createState() => _BondDescriptionPageState();
 }
 
-class _BondDescriptionState extends State<BondDescription> {
-  DateTime today = DateTime.now();
-  int selectedGraph = 0;
+class _BondDescriptionPageState extends State<BondDescriptionPage> {
+  Map<String, dynamic>? bondDetails;
+  Map<String, dynamic>? MarketBondInquireAskingPrice;
+  Map<String, dynamic>? MarketBondInquirePrice;
+  List<dynamic>? MarketBondInquireDailyPrice;
+  List<ChartData> chartData = [];  // Chart 데이터 리스트
 
-  List<BarChartGroupData> firstGraphData = [];
-  List<BarChartGroupData> secondGraphData = [];
-
-  List<dynamic> monthList = [10, 13, 35, 12, 50];
+  bool isLoading = true;
+  final Dio dio = Dio();
 
   @override
   void initState() {
     super.initState();
+    _fetchBondDetails();
+    _fetchBondDetailsFromDummyData();
+  }
 
-    // 첫 번째 그래프 데이터 초기화
-    firstGraphData = [
-      BarChartGroupData(
-          x: 0,
-          barRods: [
-            BarChartRodData(toY: 10.toDouble(), color: const Color(0xffE6E1D8), width: 15)
-          ]),
-      BarChartGroupData(
-          x: 1,
-          barRods: [
-            BarChartRodData(toY: 13.toDouble(), color: Colors.orange, width: 15)
-          ]),
-      BarChartGroupData(
-          x: 2,
-          barRods: [
-            BarChartRodData(toY: 17.toDouble(), color: Colors.orange, width: 15)
-          ]),
-      BarChartGroupData(
-          x: 3,
-          barRods: [
-            BarChartRodData(toY: 25.toDouble(), color: Colors.orange, width: 15)
-          ]),
-      BarChartGroupData(
-          x: 4,
-          barRods: [
-            BarChartRodData(toY: 11.toDouble(), color: Colors.orange, width: 15)
-          ]),
-      BarChartGroupData(
-          x: 5,
-          barRods: [
-            BarChartRodData(toY: 9.toDouble(), color: Colors.orange, width: 15)
-          ]),
-      BarChartGroupData(
-          x: 6,
-          barRods: [
-            BarChartRodData(toY: 30.toDouble(), color: Colors.orange, width: 15)
-          ]),
-    ];
+  Future<void> _fetchBondDetails() async {
+    final apiUrl =
+        "http://10.0.2.2:8000/api/koreaib/market-bond-issue-info/market_bond_issue_info/?code=${widget.bondCode}";
+    try {
+      final response = await dio.get(apiUrl);
+      if (response.statusCode == 200) {
+        setState(() {
+          bondDetails = response.data;
+          isLoading = false;
+        });
+      } else {
+        print('Failed to load bond details');
+      }
+    } catch (e) {
+      print('Error fetching bond details: $e');
+    }
+  }
 
-    // 두 번째 그래프 데이터 초기화
-    secondGraphData = List.generate(monthList.length, (index) {
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(toY: monthList[index].toDouble(), color: Colors.orange, width: 15)
-        ],
-      );
-    });
+  Future<void> _fetchBondDetailsFromDummyData() async {
+    try {
+      final dummyData = jsonDecode(DummyData.MarketBondInquireAskingPrice);
+      final dummyData1 = jsonDecode(DummyData.MarketBondInquirePrice);
+      final dummyData2 = jsonDecode(DummyData.MarketBondInquireDailyPrice);
+      Map<String, dynamic> output = dummyData['output'];
+      Map<String, dynamic> output1 = dummyData1['output'];
+      List<dynamic> output2 = dummyData2['output'];
+      chartData = output2.map((item) {
+        String dateStr = item['stck_bsop_date'];
+        dateStr = dateStr.substring(0, 4) + '-' + dateStr.substring(4, 6) + '-' + dateStr.substring(6, 8); // "20240925" -> "2024-09-25"
+        DateTime date = DateTime.parse(dateStr);
+        double price = double.parse(item['bond_prpr']);
+        return ChartData(date, price);
+      }).toList();
+
+      setState(() {
+        MarketBondInquireAskingPrice = output;
+        MarketBondInquirePrice = output1;
+        MarketBondInquireDailyPrice = output2;
+      });
+    } catch (e) {
+      print("Error parsing dummy data: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = "${today.year}년 ${today.month}월 ${today.day}일";
-    final DataController dataController = Get.put(DataController());
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Center(child: Text('기록'))),
-      body: Obx(() {
-      if (dataController.isLoading.value) {
-      return const Center(child: CircularProgressIndicator());
-      }
-      if (dataController.market_bond_issue_info.isEmpty ||
-        dataController.market_bond_inquire_daily_price.isEmpty) {
-      return const Center(child: Text('No Data Available'));
-      }
-
-      int index1 = 0;  // 원하는 인덱스값
-      int index2 = 0;  // 원하는 인덱스값
-
-      if (dataController.market_bond_issue_info.length > index1 &&
-      dataController.market_bond_inquire_daily_price.length > index2) {
-      var data1 = dataController.market_bond_issue_info[index1];  // market_bond_issue_info의 특정 인덱스 값
-      var data2 = dataController.market_bond_inquire_daily_price[index2];  // market_bond_inquire_daily_price의 특정 인덱스 값
-
-      return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 42.0),
+    return DefaultTabController(
+      length: 3, // 3개의 탭
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('채권 상세 정보'),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: '채권 정보'),
+              Tab(text: '호가 정보'),
+              Tab(text: '수익'),
+            ],
+          ),
+        ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : TabBarView(
+          children: [
+            // 채권 정보 페이지
+            bondDetails != null
+                ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 16),
+                    Text('채권명: ${bondDetails!['prdt_name']}', style: TextStyle(fontSize: 18)),
+                    Text('채권 코드: ${widget.bondCode}', style: TextStyle(fontSize: 18)),
+                    Text('발행일: ${bondDetails!['issu_dt']}', style: TextStyle(fontSize: 18)),
+                    Text('만기일: ${bondDetails!['expd_dt']}', style: TextStyle(fontSize: 18)),
+                    Text('채권 종류: ${bondDetails!['prdt_type_cd']}', style: TextStyle(fontSize: 18)),
+                    Text('이자 지급 구분: ${bondDetails!['bond_int_dfrm_mthd_cd']}', style: TextStyle(fontSize: 18)),
+                    Text('차기 이자 지급일: ${bondDetails!['nxtm_int_dfrm_dt']}', style: TextStyle(fontSize: 18)),
+                    Text('이자 지급 주기: ${bondDetails!['int_dfrm_mcnt']}', style: TextStyle(fontSize: 18)),
+                    Text('발행 기관 이름: ${bondDetails!['issu_istt_name']}', style: TextStyle(fontSize: 18)),
                     Text(
-                      '${data1['prdt_name'] ?? 'N/A'}',
-                      style: const TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      formattedDate,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    Container(
-                      width: 400,
-                      child: const Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                      ),
+                        '발행 기관 신용 등급: ${bondDetails!['nice_crdt_grad_text']?.isNotEmpty == true ? bondDetails!['nice_crdt_grad_text'] : '무위험'}',
+                        style: TextStyle(fontSize: 18)
                     ),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
+            )
+                : Center(child: Text('채권 정보를 불러올 수 없습니다')),
+
+            // 호가 정보 페이지
+            MarketBondInquireAskingPrice != null
+                ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: TextBox("발행일"),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 36.0),
-                          child: Text("${data1['issu_dtd'] ?? 'N/A'}"),
-                        ),
-                        const SizedBox(height: 18),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: TextBox('이자 지급 구분'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 36.0),
-                          child: Text("${data1['ksd_bond_int_dfrm_dvsn_cd'] ?? 'N/A'}"),
-                        ),
-                        const SizedBox(height: 18),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: TextBox("신용 등급"),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 36.0),
-                          child: Text("${data1['kbp_crdt_grad_text'] ?? 'N/A'}"),
+                    Text('매수 호가 1: ${MarketBondInquireAskingPrice!['bond_bidp1']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 1 잔량: ${MarketBondInquireAskingPrice!['bidp_rsqn1']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 1 수익율: ${MarketBondInquireAskingPrice!['shnu_ernn_rate1']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매수 호가 2: ${MarketBondInquireAskingPrice!['bond_bidp2']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 2 잔량: ${MarketBondInquireAskingPrice!['bidp_rsqn2']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 2 수익율: ${MarketBondInquireAskingPrice!['shnu_ernn_rate2']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매수 호가 3: ${MarketBondInquireAskingPrice!['bond_bidp3']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 3 잔량: ${MarketBondInquireAskingPrice!['bidp_rsqn3']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 3 수익율: ${MarketBondInquireAskingPrice!['shnu_ernn_rate3']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매수 호가 4: ${MarketBondInquireAskingPrice!['bond_bidp4']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 4 잔량: ${MarketBondInquireAskingPrice!['bidp_rsqn4']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 4 수익율: ${MarketBondInquireAskingPrice!['shnu_ernn_rate4']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매수 호가 5: ${MarketBondInquireAskingPrice!['bond_bidp5']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 5 잔량: ${MarketBondInquireAskingPrice!['bidp_rsqn5']}', style: TextStyle(fontSize: 18)),
+                    Text('매수 호가 5 수익율: ${MarketBondInquireAskingPrice!['shnu_ernn_rate5']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매도 호가 1: ${MarketBondInquireAskingPrice!['bond_askp1']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 1 잔량: ${MarketBondInquireAskingPrice!['askp_rsqn1']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 1 수익율: ${MarketBondInquireAskingPrice!['seln_ernn_rate1']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매도 호가 2: ${MarketBondInquireAskingPrice!['bond_askp2']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 2 잔량: ${MarketBondInquireAskingPrice!['askp_rsqn2']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 2 수익율: ${MarketBondInquireAskingPrice!['seln_ernn_rate2']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매도 호가 3: ${MarketBondInquireAskingPrice!['bond_askp3']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 3 잔량: ${MarketBondInquireAskingPrice!['askp_rsqn3']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 3 수익율: ${MarketBondInquireAskingPrice!['seln_ernn_rate3']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매도 호가 4: ${MarketBondInquireAskingPrice!['bond_askp4']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 4 잔량: ${MarketBondInquireAskingPrice!['askp_rsqn4']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 4 수익율: ${MarketBondInquireAskingPrice!['seln_ernn_rate4']}', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 8,),
+                    Text('매도 호가 5: ${MarketBondInquireAskingPrice!['bond_askp5']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 5 잔량: ${MarketBondInquireAskingPrice!['askp_rsqn5']}', style: TextStyle(fontSize: 18)),
+                    Text('매도 호가 5 수익율: ${MarketBondInquireAskingPrice!['seln_ernn_rate5']}', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
+              ),
+            )
+                : Center(child: Text('호가 정보를 불러올 수 없습니다')),
+
+            // 수익 페이지 + 차트 추가
+            MarketBondInquirePrice != null && MarketBondInquireAskingPrice != null && MarketBondInquireDailyPrice != null
+                ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('채결 현재가: ${MarketBondInquirePrice!['bond_prpr']}', style: TextStyle(fontSize: 18)),
+                  Text('최고 매도 수익율 호가: ${MarketBondInquirePrice!['bond_hgpr']}', style: TextStyle(fontSize: 18)),
+                  Text('최고 매도 수익율일 때의 만기 수익금: 니가 계산해라', style: TextStyle(fontSize: 18),),
+                  Text('최고 매도 수익율 호가: ${MarketBondInquireAskingPrice!['shnu_ernn_rate5']}', style: TextStyle(fontSize: 18)),
+                  SizedBox(height: 16),
+                  Container(
+                    height: 300, // 적절한 높이 설정
+                    child: SfCartesianChart(
+                      primaryXAxis: DateTimeAxis(
+                        edgeLabelPlacement: EdgeLabelPlacement.shift,
+                        dateFormat: DateFormat.yMd(),
+                        intervalType: DateTimeIntervalType.auto,
+                      ),
+                      primaryYAxis: NumericAxis(
+                        numberFormat: NumberFormat.currency(locale: 'ko_KR', symbol: "₩", decimalDigits: 2),
+                      ),
+                      series: <ChartSeries>[
+                        SplineSeries<ChartData, DateTime>(
+                          dataSource: chartData,
+                          xValueMapper: (ChartData data, _) => data.date,
+                          yValueMapper: (ChartData data, _) => data.price,
+                          dataLabelSettings: DataLabelSettings(isVisible: true),
+                          splineType: SplineType.monotonic,
                         )
                       ],
                     ),
-                    SizedBox(height: 18),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30),
-                          child: TextBox('만기일'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 45),
-                          child: Text("${data1['expd_dt'] ?? 'N/A'}"),
-                        ),
-                        const SizedBox(height: 18),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30),
-                          child: TextBox('차기 이자 지급'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 47.0),
-                          child: Text("${data1['nxtm_int_dfrm_dt'] ?? 'N/A'}"),
-                        ),
-                        const SizedBox(height: 18),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30),
-                          child: TextBox("세전 수익률"),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 47.0),
-                          child: Text("${data1['expd_asrc_erng_rt'] ?? 'N/A'}"),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 40.0),
-                          child: TextBox('채권 종류'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 15.0),
-                          child: Text("${data1['bond_clsf_kor_name'] ?? 'N/A'}"),
-                        ),
-                        const SizedBox(height: 18),
-                        TextBox('이자 지급 주기'),
-                        Padding(
-                          padding: EdgeInsets.only(right: 15.0),
-                          child: Text("${data1['int_dfrm_mcnt'] ?? 'N/A'}개월"),
-                        ),
-                        const SizedBox(height: 18),
-                        TextBox("예상 수익금"),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 15.0),
-                          child: Text("몰루레이후"),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              Center(
-                child: Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 300,
-                    maxHeight: 30,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffE6E1D8),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedGraph = 0;
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: selectedGraph == 0
-                              ? Colors.white
-                              : const Color(0xffE6E1D8),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 50),
-                        ),
-                        child: const Text("Weekly", style: TextStyle(fontSize: 10)),
-                      ),
-                      const SizedBox(width: 5),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedGraph = 1;
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: selectedGraph == 1
-                              ? Colors.white
-                              : const Color(0xffE6E1D8),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 50),
-                        ),
-                        child: const Text('Monthly', style: TextStyle(fontSize: 10)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Center(
-                  child: Container(
-                    height: MediaQuery.of(context).size.height / 2,
-                    padding: const EdgeInsets.all(16.0),
-                    child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        barGroups: selectedGraph == 0 ? firstGraphData : secondGraphData,
-                        borderData: FlBorderData(show: false),
-                        gridData: const FlGridData(
-                          show: false,
-                        ),
-                        titlesData: FlTitlesData(
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (double value, TitleMeta meta) {
-                                const style = TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                );
-                                if (selectedGraph == 0) {
-                                  List<String> days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                                  return Text(days[value.toInt()], style: style);
-                                } else {
-                                  return Text((value.toInt() + 1).toString(), style: style);
-                                }
-                              },
-                            ),
-                          ),
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        } else {
-        return const Center(child: Text('Invalid index or no data available.'));
-      }
-    }),
+            )
+                : Center(child: Text('수익 정보를 불러올 수 없습니다')),
+          ],
+        ),
       ),
     );
   }
 }
 
-class TextBox extends StatelessWidget {
-  final String text;
+// 차트 데이터를 담는 클래스
+class ChartData {
+  final DateTime date;
+  final double price;
 
-  TextBox(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+  ChartData(this.date, this.price);
 }
