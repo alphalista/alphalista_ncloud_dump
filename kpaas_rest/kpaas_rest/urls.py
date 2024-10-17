@@ -27,6 +27,4 @@ urlpatterns = [
     path('api/marketbond/', include("marketbond.urls")),
     # path('api/otcbond/', include("otcbond.urls")),
     path('api/news/', include("news.urls")),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

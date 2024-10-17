@@ -10,7 +10,7 @@ from .models import (
     MarketBondInquireDailyItemChartPrice,
     MarketBondInquirePrice,
     MarketBondInquireCCNL,
-    MarketBondInquireDailyPrice,
+    MarketBondInquireDailyPrice, ClickCount,
 )
 
 
@@ -107,3 +107,9 @@ class MarketBondSerializer(serializers.ModelSerializer):
             'nice_crdt_grad_text',
             'bond_prpr',
         ]
+
+class ClickCountSerializer(serializers.ModelSerializer):
+    market_bond_code = MarketBondCodeSerializer(read_only=True)
+    class Meta:
+        model = ClickCount
+        fields = "__all__"

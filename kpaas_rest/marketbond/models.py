@@ -43,7 +43,6 @@ class MarketBond(models.Model):
     bond_prpr = models.CharField(max_length=112, verbose_name="채권현재가")
 
 
-
 # 장내채권 발행정보
 class MarketBondIssueInfo(models.Model):
     code = models.ForeignKey(MarketBondCode, on_delete=models.CASCADE)
@@ -487,3 +486,12 @@ class MarketBondInquireDailyPrice(models.Model):
         constraints = [
             UniqueConstraint(fields=["stck_bsop_date"], name="unique_daily_price")
         ]
+
+
+class ClickCount(models.Model):
+    marketbond = models.ForeignKey(MarketBondCode, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(default=0)
+
+    def increment(self):
+        self.count += 1
+        self.save()

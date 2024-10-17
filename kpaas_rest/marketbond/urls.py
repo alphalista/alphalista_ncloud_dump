@@ -9,17 +9,21 @@ from .views import (
     MarketBondInquirePriceViewSet,
     MarketBondInquireCCNLViewSet,
     MarketBondInquireDailyPriceViewSet,
+    MarketBondViewSet,
+    ClickCountViewSet,
 )
 
 router = DefaultRouter()
-router.register("mb-issue-info", MarketBondIssueInfoViewSet)
-router.register("mb-search-info", MarketBondSearchInfoViewSet)
-router.register("mb-inquire-asking-price", MarketBondInquireAskingPriceViewSet)
-router.register("mb-avg-unit", MarketBondAvgUnitViewSet)
-router.register("mb-inquire-daily-item-chart-price", MarketBondInquireDailyItemChartPriceViewSet)
-router.register("mb-inquire-price", MarketBondInquirePriceViewSet)
-router.register("mb-inquire-ccnl", MarketBondInquireCCNLViewSet)
-router.register("mb-inquire-daily-price", MarketBondInquireDailyPriceViewSet)
+router.register('marketbond', MarketBondViewSet)
+router.register("issue-info", MarketBondIssueInfoViewSet)
+router.register("search-info", MarketBondSearchInfoViewSet)
+router.register("inquire-asking-price", MarketBondInquireAskingPriceViewSet)
+router.register("avg-unit", MarketBondAvgUnitViewSet)
+router.register("inquire-daily-item-chart-price", MarketBondInquireDailyItemChartPriceViewSet)
+router.register("inquire-price", MarketBondInquirePriceViewSet)
+router.register("inquire-ccnl", MarketBondInquireCCNLViewSet)
+router.register("inquire-daily-price", MarketBondInquireDailyPriceViewSet),
+router.register("click-count", ClickCountViewSet),
 
 
 urlpatterns = router.urls
