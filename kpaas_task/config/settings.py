@@ -196,7 +196,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     'crawling': {
         'task': 'crawling.tasks.crawling',
-        'schedule': crontab(minute=1, hour=0),
+        'schedule': 60 * 2,
+        'options': {
+            'expires': 60 * 1
+        }
     }
 }
 
