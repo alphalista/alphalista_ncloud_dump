@@ -3,10 +3,45 @@ from django.db.models import UniqueConstraint
 
 
 # Create your models here.
+# Duplicated model kpaas_task
 
 
 class MarketBondCode(models.Model):
     code = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['code'], name='unique_code_field')
+        ]
+
+class MarketBond(models.Model):
+    code = models.ForeignKey(MarketBondCode, on_delete=models.CASCADE)
+    pdno = models.CharField(max_length=12, verbose_name="상품번호")
+    prdt_type_cd = models.CharField(max_length=3, verbose_name="상품유형코드")
+    prdt_name = models.CharField(max_length=60, verbose_name="상품명")
+    bond_clsf_kor_name = models.CharField(max_length=60, verbose_name="채권분류한글명")
+    int_dfrm_mcnt = models.CharField(max_length=6, verbose_name="이자지급개월수")
+    bond_int_dfrm_mthd_cd = models.CharField(
+        max_length=2, verbose_name="채권이자지급방법코드"
+    )
+    prca_dfmt_term_mcnt = models.CharField(
+        max_length=6, verbose_name="원금거치기간개월수"
+    )
+    issu_istt_name = models.CharField(max_length=60, verbose_name="발행기관명")
+    srfc_inrt = models.CharField(max_length=238, verbose_name="표면이율")
+    expd_asrc_erng_rt = models.CharField(max_length=238, verbose_name="만기보장수익율")
+    int_dfrm_day_type_cd = models.CharField(
+        max_length=2, verbose_name="이자지급일유형코드"
+    )
+    issu_dt = models.CharField(max_length=8, verbose_name="발행일자")
+    expd_dt = models.CharField(max_length=8, verbose_name="만기일자")
+    nxtm_int_dfrm_dt = models.CharField(max_length=8, verbose_name="차기이자지급일자")
+    nice_crdt_grad_text = models.CharField(
+        max_length=500, verbose_name="한국신용정보신용등급내용"
+    )
+    bond_prpr = models.CharField(max_length=112, verbose_name="채권현재가")
+
 
 
 # 장내채권 발행정보
@@ -396,7 +431,7 @@ class MarketBondInquireDailyItemChartPrice(models.Model):
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=["stck_bsop_date"], name="unique_daily_item_chart_price"
+                fields=["stck_bsop_date", "code"], name="unique_daily_item_chart_price"
             )
         ]
 
