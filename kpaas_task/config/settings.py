@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_beat',
     'django_celery_results',
+    'crawling',
 ]
 
 MIDDLEWARE = [
@@ -192,6 +193,10 @@ CELERY_BEAT_SCHEDULE = {
         'options': {
             'expires': 60 * 14
         }
+    },
+    'crawling': {
+        'task': 'crawling.tasks.crawling',
+        'schedule': crontab(minute=1, hour=0),
     }
 }
 
