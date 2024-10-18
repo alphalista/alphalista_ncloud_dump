@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: sungmin330/kpaas_task:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: celery-config
+              key: CELERY_BROKER_URL
+        command: ["python"]
+        args: ["manage.py", "runserver", "0.0.0.0:8000", "--settings=config.settings.production"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  ports:
+  - port: 8000
+  selector:
+    app: web
