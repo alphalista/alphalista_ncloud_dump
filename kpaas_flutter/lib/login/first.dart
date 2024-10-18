@@ -1,20 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: "assets/config/.env");
+  final kakaoNativeAppKey = dotenv.env['KAKAO_NATIVE_APP_KEY'];
+  final javaScriptAppKey = dotenv.env['KAKAO_JAVASCRIPT_APP_KEY'];
+
+  KakaoSdk.init(
+    nativeAppKey: kakaoNativeAppKey,
+    javaScriptAppKey: javaScriptAppKey,
+  );
   runApp(MyApp());
 }
 
 Future<void> sendGetRequest() async {
-  var dio = Dio();
+  final kakaoRestApiKey = dotenv.env['KAKAO_REST_API_KEY'];
+  const redirectUri = 'http://localhost:3000/auth/login/kakao-callback';  // Django 백엔드로 리디렉션할 URL
+  final Dio dio = Dio();
+
   try {
-    var response = await dio.get(
-      'https://example.com/api/endpoint',
+    // 카카오 인증을 위한 AuthCodeClient 사용
+    String authCode = await AuthCodeClient.instance.authorize(
+      clientId: kakaoRestApiKey!,
+      redirectUri: redirectUri,
     );
-    print('Response status: ${response.statusCode}');
-    print('Response data: ${response.data}');
-  } catch (e) {
-    print('Error sending get request: $e');
+
+    print('카카오 계정으로 로그인 성공, 인증 코드: $authCode');
+
+    // 인증 코드를 Django 백엔드로 전송
+    final response = await dio.post(
+      'http://localhost:3000/auth/login/kakao-callback',  // DRF 엔드포인트
+      data: {
+        'code': authCode,  // 인증 코드 전송
+      },
+    );
+
+    // Django 서버 응답 확인
+    if (response.statusCode == 200) {
+      print('백엔드로부터 응답 수신: ${response.data}');
+    } else {
+      print('백엔드 요청 실패: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('카카오 계정으로 로그인 실패 $error');
   }
 }
 
@@ -43,7 +76,7 @@ class _TabNavigationExampleState extends State<TabNavigationExample> with Single
 
     // 탭의 변화 감지
     _tabController.addListener(() {
-      setState(() {});  // 탭의 상태가 바뀔 때마다 UI를 업데이트
+      setState(() {});
     });
   }
 
@@ -184,18 +217,18 @@ class _TabNavigationExampleState extends State<TabNavigationExample> with Single
             ],
           )
               : Center(
-                child: GestureDetector(
-                  onTap: sendGetRequest,
-                  child: const Text(
-                    '카카오로 시작하기',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white,
-                    ),
-                  ),
+            child: GestureDetector(
+              onTap: sendGetRequest,
+              child: const Text(
+                '카카오로 시작하기',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
                 ),
               ),
+            ),
+          ),
         ),
       ),
     );
