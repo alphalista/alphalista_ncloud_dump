@@ -1,5 +1,7 @@
 import scrapy
-from ..items import OtcBondScrapyItem
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+from crawling.OTC_bond_scrapy.items import OtcBondScrapyItem
 # 스크래피 해야할 정보
 # 채권 코드 - Outside - 완
 # 채권 명 - Outside - 완

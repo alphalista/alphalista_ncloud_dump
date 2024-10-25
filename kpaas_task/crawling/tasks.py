@@ -1,5 +1,6 @@
 import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'OTC_bond_scrapy')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './OTC_bond_scrapy')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../crawling')))
 
 
 import logging
@@ -15,11 +16,11 @@ from scrapy.settings import Settings
 
 from scrapy.utils.project import get_project_settings
 
-settings = get_project_settings()
-# settings = Settings()
-# os.environ['SCRAPY_SETTINGS_MODULE'] = 'crawling.OTC_bond_scrapy.settings'
-# settings_module_path = os.environ['SCRAPY_SETTINGS_MODULE']
-# settings.setmodule(settings_module_path, priority='project')
+# settings = get_project_settings()
+settings = Settings()
+os.environ['SCRAPY_SETTINGS_MODULE'] = 'crawling.OTC_bond_scrapy.settings'
+settings_module_path = os.environ['SCRAPY_SETTINGS_MODULE']
+settings.setmodule(settings_module_path, priority='project')
 
 def crawling_start():
     process = CrawlerProcess(settings)
