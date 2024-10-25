@@ -27,11 +27,11 @@ class ShinhanspiderSpider(scrapy.Spider):
 
             url = 'https://www.shinhansec.com/siw/wealth-management/bond-rp/5901P02/data.do'
             form_data = {
-                        "header": {
-                            "TCD": "S",
-                            "SDT": "20241014130052262",
-                            "SVW": "/siw/wealth-management/bond-rp/5901P02/view-popup.do"
-                        },
+                        # "header": {
+                        #     "TCD": "S",
+                        #     "SDT": "20241014130052262",
+                        #     "SVW": "/siw/wealth-management/bond-rp/5901P02/view-popup.do"
+                        # },
                         "body": {
                             "bondCode": f"{it['종목코드']}",
                             "bondType": f"{it['채권이자지급방법코드']}",

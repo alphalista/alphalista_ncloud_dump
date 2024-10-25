@@ -23,12 +23,11 @@ settings = get_project_settings()
 
 def crawling_start():
     process = CrawlerProcess(settings)
-    process.crawl(daishinSpider.DaishinspiderSpider)
+    process.crawl(miraeassetSpider.MiraeassetspiderSpider)
     process.start()
 
 @shared_task
 def crawling():
-    logger.info('hello')
     proc = Process(target=crawling_start)
     proc.start()
     proc.join()

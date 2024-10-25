@@ -14,6 +14,7 @@ from twisted.spread.pb import portno
 
 class OtcBondScrapyPipeline:
     def __init__(self):
+        print('start')
         try:
             self.conn = mysql.connector.connect(user='root', password='ytk-10122713', database='bonddb',
                                                 host='localhost', port='3306')
@@ -23,6 +24,7 @@ class OtcBondScrapyPipeline:
             print('ERROR:', e)
 
     def process_item(self, item, spider):
+        print('hello')
         if spider.name == 'miraeassetSpider' or spider.name == 'shinhanSpider' or spider.name == 'daishinSpider':
             pub_date = item['pub_date']
             mat_date = item['mat_date']
