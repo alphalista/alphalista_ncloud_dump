@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpaas_flutter/apiconnectiontest/data_controller.dart';
-import 'package:kpaas_flutter/bondDescription.dart';
+import 'package:kpaas_flutter/otcBondDescription.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
 
 class OtcBondPage extends StatefulWidget {
@@ -24,12 +24,12 @@ class _EtBondPageState extends State<OtcBondPage> {
   @override
   void initState() {
     super.initState();
-    bondData = widget.initialBondData;  // 초기 데이터 설정
-    nextUrl = widget.initialNextUrl;  // 초기 next URL 설정
+    bondData = widget.initialBondData;
+    nextUrl = widget.initialNextUrl;
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading && nextUrl != null) {
-        _fetchMoreData();  // 스크롤이 끝에 도달하면 추가 데이터 요청
+        _fetchMoreData();
       }
     });
   }
@@ -38,14 +38,14 @@ class _EtBondPageState extends State<OtcBondPage> {
     if (nextUrl == null || isLoading) return;
 
     setState(() {
-      isLoading = true;  // 로딩 상태 시작
+      isLoading = true;
     });
 
     try {
       final response = await dataController.fetchEtBondData(nextUrl!);  // DataController 통해 데이터 요청
       setState(() {
-        bondData.addAll(response['results']);  // 받아온 데이터 리스트에 추가
-        nextUrl = response['next'];  // 다음 페이지 URL 설정
+        bondData.addAll(response['results']);
+        nextUrl = response['next'];
       });
     } catch (e) {
       print('Error fetching more data: $e');
@@ -95,8 +95,8 @@ class _EtBondPageState extends State<OtcBondPage> {
         children: [
           Expanded(
             child: ListView.builder(
-              controller: _scrollController,  // 스크롤 컨트롤러 설정
-              itemCount: bondData.length + 1,  // 데이터 개수 + 로딩 인디케이터
+              controller: _scrollController,
+              itemCount: bondData.length + 1,
               itemBuilder: (context, index) {
                 if (index == 0) {
                   // 첫 번째 컨테이너 전에 간격을 추가
@@ -115,8 +115,8 @@ class _EtBondPageState extends State<OtcBondPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BondDescriptionPage(
-                          bondCode: bondData[actualIndex]['code'],  // 채권 코드 전달
+                        builder: (context) => OtcBondDescriptionPage(
+                          bondCode: bondData[actualIndex]['code'],
                         ),
                       ),
                     );
