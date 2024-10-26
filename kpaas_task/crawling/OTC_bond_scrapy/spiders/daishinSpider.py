@@ -1,5 +1,7 @@
 import scrapy
-from ..items import OtcBondScrapyItem
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+from crawling.OTC_bond_scrapy.items import OtcBondScrapyItem
 import copy
 
 

@@ -25,6 +25,8 @@ settings.setmodule(settings_module_path, priority='project')
 def crawling_start():
     process = CrawlerProcess(settings)
     process.crawl(miraeassetSpider.MiraeassetspiderSpider)
+    process.crawl(shinhanSpider.ShinhanspiderSpider)
+    process.crawl(daishinSpider.DaishinspiderSpider)
     process.start()
 
 @shared_task

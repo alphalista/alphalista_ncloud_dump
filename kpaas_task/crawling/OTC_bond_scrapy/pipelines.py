@@ -10,7 +10,11 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import mysql.connector
 from twisted.spread.pb import portno
-
+import os, sys
+import django_setup
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+from crawling.models import OTC_Bond
+from asgiref.sync import sync_to_async
 
 class OtcBondScrapyPipeline:
     def __init__(self):
@@ -23,7 +27,7 @@ class OtcBondScrapyPipeline:
         except Exception as e:
             print('ERROR:', e)
 
-    def process_item(self, item, spider):
+    async def process_item(self, item, spider):
         print('hello')
         if spider.name == 'miraeassetSpider' or spider.name == 'shinhanSpider' or spider.name == 'daishinSpider':
             pub_date = item['pub_date']
@@ -44,6 +48,46 @@ class OtcBondScrapyPipeline:
                    item['duration'])
             )
             self.conn.commit()
+
+            # django db 연관
+            print('start djangoDB')
+            await sync_to_async(OTC_Bond.objects.create)(
+                trading_company_name = item['trading_company_name'],
+                bond_code = item['bond_code'],
+                bond_name = item['bond_name'],
+                danger_degree = item['danger_degree'],
+                pub_date = item['pub_date'],
+                mat_date = item['mat_date'],
+                YTM = item['YTM'],
+                YTM_after_tax = item['YTM_after_tax'],
+                price_per_10 = item['price_per_10'],
+                bond_type = item['bond_type'],
+                int_pay_class = item['int_pay_class'],
+                int_pay_cycle = item['int_pay_cycle'],
+                interest_percentage = item['interest_percentage'],
+                nxt_int_date = item['nxt_int_date'],
+                expt_income = item['expt_income'],
+                duration = item['duration']
+            )
+            # OTC_Bond.objects.create(
+            #     trading_company_name = item['trading_company_name'],
+            #     bond_code = item['bond_code'],
+            #     bond_name = item['bond_name'],
+            #     danger_degree = item['danger_degree'],
+            #     pub_date = item['pub_date'],
+            #     mat_date = item['mat_date'],
+            #     YTM = item['YTM'],
+            #     YTM_after_tax = item['YTM_after_tax'],
+            #     price_per_10 = item['price_per_10'],
+            #     bond_type = item['bond_type'],
+            #     int_pay_class = item['int_pay_class'],
+            #     int_pay_cycle = item['int_pay_cycle'],
+            #     interest_percentage = item['interest_percentage'],
+            #     nxt_int_date = item['nxt_int_date'],
+            #     expt_income = item['expt_income'],
+            #     duration = item['duration']
+            # )
+            print('The End djangoDB')
 
         # print(item)
         return item
