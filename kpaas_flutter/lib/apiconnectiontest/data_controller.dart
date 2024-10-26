@@ -19,7 +19,7 @@ class DataController extends GetxController {
   Future<List<dynamic>> fetchNewsData() async {
     isLoading(true);
     try {
-      final response = await apiService.fetchData('http://10.0.2.2:8000/api/koreaib/news/data/?query=%EC%82%BC%EC%84%B1&sort=date');
+      final response = await apiService.fetchData('http://localhost:8000/api/koreaib/news/data/?query=%EC%82%BC%EC%84%B1&sort=date');
       if (response.statusCode == 200 && response.data is Map) {
         news.clear();
         news.assignAll(response.data['items']);  // 뉴스 데이터 업데이트
