@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpaas_flutter/apiconnectiontest/data_controller.dart';
-import 'package:kpaas_flutter/bondDescription.dart';
+import 'package:kpaas_flutter/etBondDescription.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
 
 class EtBondPage extends StatefulWidget {
@@ -115,7 +115,7 @@ class _EtBondPageState extends State<EtBondPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BondDescriptionPage(
+                        builder: (context) => EtBondDescriptionPage(
                           bondCode: bondData[actualIndex]['code'],  // 채권 코드 전달
                         ),
                       ),
