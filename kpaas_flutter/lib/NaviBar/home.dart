@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kpaas_flutter/bondDescription.dart';
+import 'package:kpaas_flutter/etBondDescription.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
 import 'package:kpaas_flutter/apiconnectiontest/dummy_data.dart';
+import 'package:kpaas_flutter/otcBondDescription.dart';
 import 'dart:convert';
 
 class HomePage extends StatefulWidget {
@@ -34,8 +35,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchBondDetailsFromDummyData() async {
     try {
-      final dummyData = jsonDecode(DummyData.MarketEtBondInterestPrice);
-      final dummyData2 = jsonDecode(DummyData.MarketEtBondTrendingPrice);
+      final dummyData = jsonDecode(DummyData.MarketEtBondInterestPrice(5));
+      final dummyData2 = jsonDecode(DummyData.MarketEtBondTrendingPrice(15));
       final dummyData3 = jsonDecode(DummyData.MarketOtcBondInterestPrice);
       final dummyData4 = jsonDecode(DummyData.MarketOtcBondTrendingPrice);
 
@@ -377,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BondDescriptionPage(bondCode: bond['code']),
+                    builder: (context) => EtBondDescriptionPage(bondCode: bond['code']),
                   ),
                 );
               },
@@ -397,7 +398,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  bond['expd_asrc_erng_rt'],
+                  "${bond['expd_asrc_erng_rt']}%",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 30,
@@ -533,13 +534,13 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => BondDescriptionPage(bondCode: bond['code']))
+                          MaterialPageRoute(builder: (context) => OtcBondDescriptionPage(bondCode: bond['code']))
                         );
                       },
                     ),
                   ),
                   Text(
-                    bond['expd_asrc_erng_rt'],
+                    "${bond['expd_asrc_erng_rt']}%",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -564,34 +565,48 @@ class _HomePageState extends State<HomePage> {
 }
 
 class MeetingDataSource extends CalendarDataSource {
-MeetingDataSource(List<Appointment> source) {
-  appointments = source;
-}
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
+  }
 }
 
 List<Appointment> _getDataSource(List<Map<String, dynamic>> bondList1, List<Map<String, dynamic>> bondList2) {
   final List<Appointment> meetings = <Appointment>[];
 
-  // 첫 번째 리스트 처리
-  List bondLists = [...bondList1, ...bondList2]; // 리스트를 합침
+  // 두 리스트를 합침
+  List bondLists = [...bondList1, ...bondList2];
 
   for (var bond in bondLists) {
-    String? dateString = bond['nxtm_int_dfrm_dt'];
-
-    if (dateString != null && dateString.length == 8) {
-      DateTime bondDate = DateTime.parse(
-          '${dateString.substring(0, 4)}-${dateString.substring(4, 6)}-${dateString.substring(6, 8)}'
+    // 차기 이자 지급일 추가
+    String? nextInterestDate = bond['nxtm_int_dfrm_dt'];
+    if (nextInterestDate != null && nextInterestDate.length == 8) {
+      DateTime nextInterest = DateTime.parse(
+          '${nextInterestDate.substring(0, 4)}-${nextInterestDate.substring(4, 6)}-${nextInterestDate.substring(6, 8)}'
       );
 
       meetings.add(Appointment(
-        startTime: bondDate,
-        endTime: bondDate.add(const Duration(hours: 1)),
-        subject: bond['prdt_nick'] ?? 'No Name',
+        startTime: nextInterest,
+        endTime: nextInterest.add(const Duration(hours: 1)),
+        subject: '${bond['prdt_nick'] ?? 'No Name'} - 이자 지급일',
         color: Colors.blue,
       ));
     }
-  }
 
+    // 만기일 추가
+    String? expdDate = bond['expd_dt'];
+    if (expdDate != null && expdDate.length == 8) {
+      DateTime expd = DateTime.parse(
+          '${expdDate.substring(0, 4)}-${expdDate.substring(4, 6)}-${expdDate.substring(6, 8)}'
+      );
+
+      meetings.add(Appointment(
+        startTime: expd,
+        endTime: expd.add(const Duration(hours: 1)),
+        subject: '${bond['prdt_nick'] ?? 'No Name'} - 만기일',
+        color: Colors.red,
+      ));
+    }
+  }
 
   return meetings;
 }
