@@ -11,8 +11,8 @@ from dateutil.relativedelta import relativedelta
 import mysql.connector
 from twisted.spread.pb import portno
 import os, sys
-import django_setup
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+import crawling.OTC_bond_scrapy.django_setup
 from crawling.models import OTC_Bond
 from asgiref.sync import sync_to_async
 

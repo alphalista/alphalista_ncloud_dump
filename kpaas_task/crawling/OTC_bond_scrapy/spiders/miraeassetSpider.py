@@ -2,6 +2,7 @@ import scrapy
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from crawling.OTC_bond_scrapy.items import OtcBondScrapyItem
+import copy
 # 스크래피 해야할 정보
 # 채권 코드 - Outside - 완
 # 채권 명 - Outside - 완
@@ -64,7 +65,7 @@ class MiraeassetspiderSpider(scrapy.Spider):
             # self.bond_list.append(bond_info)
             # print("d")
             yield scrapy.Request(url="https://securities.miraeasset.com/hks/hks4036/v01.do?itemCode=" + bond_info['bond_code'],
-                                 callback=self.parse_bond_detail, meta={'bond_info': bond_info})
+                                 callback=self.parse_bond_detail, meta={'bond_info': copy.deepcopy(bond_info)})
 
         return None
 

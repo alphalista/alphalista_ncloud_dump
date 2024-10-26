@@ -12,7 +12,7 @@ BOT_NAME = "OTC_bond_scrapy"
 SPIDER_MODULES = ["OTC_bond_scrapy.spiders"]
 NEWSPIDER_MODULE = "OTC_bond_scrapy.spiders"
 SPLASH_URL = 'http://localhost:8050'
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+# DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
 ITEM_PIPELINES = {
     'OTC_bond_scrapy.pipelines.OtcBondScrapyPipeline': 300,
 }
