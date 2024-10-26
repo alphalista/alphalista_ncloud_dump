@@ -9,17 +9,23 @@ import 'MyPage/myPage_main.dart';
 import 'apiconnectiontest/data_controller.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MainPage());
 }
 
-class MyApp extends StatelessWidget {
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.white,
+      home: Scaffold(
+        backgroundColor: Colors.grey[300], // 외부 배경 색상
+        body: Center(
+          child: Container(
+            width: 600,
+            color: Colors.white,
+            child: MyHomePage(),
+          ),
+        ),
       ),
-      home: MyHomePage(),
     );
   }
 }
@@ -46,11 +52,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchBondData() async {
-    final etResponse = await dataController.fetchEtBondData("http://10.0.2.2:8000/api/koreaib/market-bond-code/?limit=20");
+    final etResponse = await dataController.fetchEtBondData("http://localhost:8000/api/koreaib/market-bond-code/?limit=20");
     etBondData = etResponse['results'];
     nextEtBondUrl = etResponse['next'];
 
-    final otcResponse = await dataController.fetchEtBondData("http://10.0.2.2:8000/api/koreaib/market-bond-code/?limit=20");
+    final otcResponse = await dataController.fetchEtBondData("http://localhost:8000/api/koreaib/market-bond-code/?limit=20");
     otcBondData = otcResponse['results']; // 장외채권 데이터 설정
     nextOtcBondUrl = otcResponse['next']; // 다음 장외채권 페이지 URL 설정
 
@@ -82,35 +88,38 @@ class _MyHomePageState extends State<MyHomePage> {
           ? CalculatorPage() // 투자 계산기 페이지
           : NewsPage(newsData: newsData),  // 뉴스 페이지
 
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '홈',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '장내 채권',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart),
-            label: '장외 채권',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calculate),
-            label: '투자 계산기',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper),
-            label: '뉴스',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.blueGrey,
-        onTap: _onItemTapped,  // 아이템 클릭 시 호출
+      bottomNavigationBar: Container(
+        width: 600,
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: '홈',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart),
+              label: '장내 채권',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.stacked_bar_chart),
+              label: '장외 채권',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calculate),
+              label: '투자 계산기',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.newspaper),
+              label: '뉴스',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.blueGrey,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }
