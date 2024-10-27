@@ -51,25 +51,7 @@ class OtcBondScrapyPipeline:
 
             # django db 연관
             print('start djangoDB')
-            await sync_to_async(OTC_Bond.objects.create)(
-                trading_company_name = item['trading_company_name'],
-                bond_code = item['bond_code'],
-                bond_name = item['bond_name'],
-                danger_degree = item['danger_degree'],
-                pub_date = item['pub_date'],
-                mat_date = item['mat_date'],
-                YTM = item['YTM'],
-                YTM_after_tax = item['YTM_after_tax'],
-                price_per_10 = item['price_per_10'],
-                bond_type = item['bond_type'],
-                int_pay_class = item['int_pay_class'],
-                int_pay_cycle = item['int_pay_cycle'],
-                interest_percentage = item['interest_percentage'],
-                nxt_int_date = item['nxt_int_date'],
-                expt_income = item['expt_income'],
-                duration = item['duration']
-            )
-            # OTC_Bond.objects.create(
+            # await sync_to_async(OTC_Bond.objects.create)(
             #     trading_company_name = item['trading_company_name'],
             #     bond_code = item['bond_code'],
             #     bond_name = item['bond_name'],
@@ -87,6 +69,26 @@ class OtcBondScrapyPipeline:
             #     expt_income = item['expt_income'],
             #     duration = item['duration']
             # )
+            await sync_to_async(OTC_Bond.objects.update_or_create)(
+                code=item['bond_code'],  # pk로 설정된 필터 조건
+                defaults={  # 업데이트 또는 생성할 데이터
+                    'issu_istt_name': item['trading_company_name'],
+                    'prdt_name': item['bond_name'],
+                    'nice_crdt_grad_text': item['danger_degree'],
+                    'issu_dt': item['pub_date'],
+                    'expd_dt': item['mat_date'],
+                    'YTM': item['YTM'],
+                    'YTM_after_tax': item['YTM_after_tax'],
+                    'price_per_10': item['price_per_10'],
+                    'prdt_type_cd': item['bond_type'],
+                    'bond_int_dfrm_mthd_cd': item['int_pay_class'],
+                    'int_pay_cycle': item['int_pay_cycle'],
+                    'interest_percentage': item['interest_percentage'],
+                    'nxtm_int_dfrm_dt': item['nxt_int_date'],
+                    'expt_income': item['expt_income'],
+                    'duration': item['duration']
+                }
+            )
             print('The End djangoDB')
 
         # print(item)

@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/crawling')))
 
 # Application definition
 
@@ -45,6 +49,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
+    'crawled_OtcBond',
+    'kpaas_task.crawling'
 ]
 
 MIDDLEWARE = [
@@ -83,11 +89,16 @@ ASGI_APPLICATION = 'kpaas_rest.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+BASE_DIR2 = Path(__file__).resolve().parent.parent.parent
 DATABASES = {
+    # 임의로 DB 경로를 수정합니다.
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR2 / 'kpaas_task/db.sqlite3',
     }
 }
 

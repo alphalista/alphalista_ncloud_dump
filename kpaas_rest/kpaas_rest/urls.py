@@ -29,4 +29,6 @@ urlpatterns = [
     path('api/news/', include("news.urls")),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # 크롤링 장외 채권 api
+    path('api/otcbond/', include("crawled_OtcBond.urls")),
 ]
