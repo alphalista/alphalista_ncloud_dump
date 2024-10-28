@@ -30,7 +30,7 @@ def market_bond_issue_info():
     try:
         pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
         for pdno in pdno_list:
-            fetch_market_bond_issue_info(pdno)
+            fetch_market_bond_issue_info.delay(pdno)
     except Exception as e:
         print(e)
 
@@ -59,7 +59,7 @@ def market_bond_inquire_asking_price():
     try:
         pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
         for pdno in pdno_list:
-            fetch_market_bond_inquire_asking_price(pdno)
+            fetch_market_bond_inquire_asking_price.delay(pdno)
     except Exception as e:
         print(e)
 
@@ -87,7 +87,7 @@ def market_bond_inquire_daily_itemchartprice():
     try:
         pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
         for pdno in pdno_list:
-            fetch_market_bond_inquire_daily_itemchartprice(pdno)
+            fetch_market_bond_inquire_daily_itemchartprice.delay(pdno)  # Use .delay() to enqueue tasks
     except Exception as e:
         print(e)
 

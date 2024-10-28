@@ -9,7 +9,7 @@ from news.news_api.get_news_data import GetNewsData
 from celery import shared_task
 
 
-@shared_task()
+@shared_task(rate_limit='10/s')
 def fetch_naver_news(kwd):
     try:
         collector = GetNewsData(kwd)

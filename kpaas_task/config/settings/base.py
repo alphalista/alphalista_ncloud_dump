@@ -15,7 +15,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')
 
 # 기본 디버그 모드 (세부 설정 파일에서 수정)
-DEBUG = False
+DEBUG = True
 
 # 기본 허용 호스트
 ALLOWED_HOSTS = ['*']

@@ -35,7 +35,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -164,30 +164,30 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'market_bond_code_task': {
         'task': 'marketbond.tasks.market_bond_code_info',
-        'schedule': crontab(minute=0, hour=0),
+        'schedule': crontab(minute='0', hour='0'),
         'options': {
             'expires': 60 * 5
         }
     },
     'market_bond_issue_info_task': {
         'task': 'marketbond.tasks.market_bond_issue_info',
-        'schedule': crontab(minute=5, hour=0),
+        'schedule': crontab(minute='5', hour='0'),
         'options': {
-            'expires': 60 * 19
+            'expires': 60 * 59
         }
     },
     'market_bond_inquire_asking_price_task': {
         'task': 'marketbond.tasks.market_bond_inquire_asking_price',
         'schedule': crontab(minute='*/30', hour='9-16'),
         'options': {
-            'expires': 60 * 19
+            'expires': 60 * 29
         }
     },
     'market_bond_inquire_daily_itemchartprice': {
         'task': 'marketbond.tasks.market_bond_inquire_daily_itemchartprice',
-        'schedule': crontab(minute=30, hour=0),
+        'schedule': crontab(minute='10', hour='1'),
         'options': {
-            'expires': 60 * 19
+            'expires': 60 * 59
         }
     },
     'naver_news_task': {
@@ -197,4 +197,33 @@ CELERY_BEAT_SCHEDULE = {
             'expires': 60 * 14
         }
     }
+}
+
+
+# 보안 설정
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# 로깅 설정
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'errors.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
 }

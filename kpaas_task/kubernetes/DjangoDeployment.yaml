@@ -31,7 +31,11 @@ kind: Service
 metadata:
   name: web
 spec:
-  ports:
-  - port: 8000
   selector:
     app: web
+  ports:
+    - protocol: TCP
+      port: 80         # 클러스터 내부에서 사용될 포트
+      targetPort: 8000 # 컨테이너가 수신 대기 중인 포트
+      nodePort: 30000  # 외부에서 접근할 수 있는 포트 (옵션)
+  type: NodePort
