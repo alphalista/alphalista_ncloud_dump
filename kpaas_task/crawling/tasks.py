@@ -11,7 +11,7 @@ from celery import app, shared_task
 from celery.utils.log import get_task_logger
 import scrapy
 from scrapy.crawler import CrawlerProcess, logger
-from .OTC_bond_scrapy.spiders import shinhanSpider, miraeassetSpider, daishinSpider
+from .OTC_bond_scrapy.spiders import shinhanSpider, miraeassetSpider, daishinSpider, kiwoomSpider
 from scrapy.settings import Settings
 
 from scrapy.utils.project import get_project_settings
@@ -27,6 +27,7 @@ def crawling_start():
     process.crawl(miraeassetSpider.MiraeassetspiderSpider)
     process.crawl(shinhanSpider.ShinhanspiderSpider)
     process.crawl(daishinSpider.DaishinspiderSpider)
+    process.crawl(kiwoomSpider.KiwoomspiderSpider)
     process.start()
 
 @shared_task
