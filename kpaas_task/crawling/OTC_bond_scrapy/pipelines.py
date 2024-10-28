@@ -29,12 +29,13 @@ class OtcBondScrapyPipeline:
 
     async def process_item(self, item, spider):
         print('hello')
-        if spider.name == 'miraeassetSpider' or spider.name == 'shinhanSpider' or spider.name == 'daishinSpider':
+        if spider.name == 'miraeassetSpider' or spider.name == 'shinhanSpider' or spider.name == 'daishinSpider' or spider.name == 'kiwoomSpider':
             pub_date = item['pub_date']
             mat_date = item['mat_date']
             int_cycle = item['int_pay_cycle']
             # 다음 이자 지급일 추가
-            item['nxt_int_date'] = self.nxt_int_date(pub_date, mat_date, int_cycle)
+            if spider.name != 'kiwoomSpider':
+                item['nxt_int_date'] = self.nxt_int_date(pub_date, mat_date, int_cycle)
             item['expt_income'] = str(self.expt_money(float(item['price_per_10']), float(item['interest_percentage']), item['nxt_int_date'].replace('.', ''),
                                                   mat_date.replace('.', ''), int(int_cycle)))
             item['duration'] = 'NONE'
@@ -91,7 +92,7 @@ class OtcBondScrapyPipeline:
             )
             print('The End djangoDB')
 
-        # print(item)
+        print(item)
         return item
 
     # 다음 이자 지급일
