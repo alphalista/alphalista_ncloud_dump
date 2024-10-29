@@ -169,7 +169,7 @@ class OtcBondScrapyPipeline:
         duration = round(-(1 + now_int) / delta_int * delta_price / now_price, 2)
         return str(duration) # 년도만 원한다면
 
-    def MacDuration(self, int_type, interest_percentage, face_value, YTM, nxt_interest_date, mat_date, interest_cycle_period):
+    def MacDuration(self, int_type, interest_percentage, face_value, YTM, mat_date, interest_cycle_period):
         if '이표' in int_type:
             # 할인율을 분기별로 계산
             cnt_per_year = 12 / interest_cycle_period
