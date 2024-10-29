@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'NaviBar/home.dart';
@@ -7,6 +9,7 @@ import 'NaviBar/calculator.dart';
 import 'NaviBar/news.dart';
 import 'MyPage/myPage_main.dart';
 import 'apiconnectiontest/data_controller.dart';
+import 'apiconnectiontest/dummy_data.dart';
 
 void main() {
   runApp(MainPage());
@@ -17,10 +20,10 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.grey[300], // 외부 배경 색상
+        backgroundColor: Colors.grey[300],
         body: Center(
           child: Container(
-            width: 600,
+            width: 500,
             color: Colors.white,
             child: MyHomePage(),
           ),
@@ -52,15 +55,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchBondData() async {
-    final etResponse = await dataController.fetchEtBondData("http://localhost:8000/api/koreaib/market-bond-code/?limit=20");
-    etBondData = etResponse['results'];
-    nextEtBondUrl = etResponse['next'];
+    try {
+      final etResponse = jsonDecode(DummyData.MarketEtBondAllList);
+      etBondData = etResponse['results'];
+      nextEtBondUrl = etResponse['next'];
 
-    final otcResponse = await dataController.fetchEtBondData("http://localhost:8000/api/koreaib/market-bond-code/?limit=20");
-    otcBondData = otcResponse['results']; // 장외채권 데이터 설정
-    nextOtcBondUrl = otcResponse['next']; // 다음 장외채권 페이지 URL 설정
+      final otcResponse = jsonDecode(DummyData.MarketOtcBondAllList);
+      otcBondData = otcResponse['results'];
+      nextOtcBondUrl = otcResponse['next'];
 
-    setState(() {});
+      setState(() {});
+    } catch (e) {
+      print('Error fetching bond data: $e');
+    }
   }
 
   Future<void> fetchNewsData() async {
@@ -73,53 +80,49 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: _selectedIndex == 0
-          ? HomePage() // 홈 페이지
+          ? HomePage()
           : _selectedIndex == 1
           ? EtBondPage(
-        initialBondData: etBondData,  // EtBondPage에 장내채권 데이터를 전달
-        initialNextUrl: nextEtBondUrl,  // EtBondPage에 next URL 전달
+        initialBondData: etBondData,
+        initialNextUrl: nextEtBondUrl,
       )
           : _selectedIndex == 2
           ? OtcBondPage(
-        initialBondData: otcBondData,  // OtcBondPage에 장외채권 데이터를 전달
-        initialNextUrl: nextOtcBondUrl,  // OtcBondPage에 next URL 전달
+        initialBondData: otcBondData,
+        initialNextUrl: nextOtcBondUrl,
       )
           : _selectedIndex == 3
-          ? CalculatorPage() // 투자 계산기 페이지
-          : NewsPage(newsData: newsData),  // 뉴스 페이지
-
-      bottomNavigationBar: Container(
-        width: 600,
-        child: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: '홈',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart),
-              label: '장내 채권',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.stacked_bar_chart),
-              label: '장외 채권',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calculate),
-              label: '투자 계산기',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.newspaper),
-              label: '뉴스',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.blueGrey,
-          onTap: _onItemTapped,
-        ),
+          ? CalculatorPage()
+          : NewsPage(newsData: newsData),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '홈',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: '장내 채권',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart),
+            label: '장외 채권',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calculate),
+            label: '투자 계산기',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.newspaper),
+            label: '뉴스',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.blueGrey,
+        onTap: _onItemTapped,
       ),
     );
   }
