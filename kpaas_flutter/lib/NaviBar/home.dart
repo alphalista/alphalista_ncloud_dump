@@ -36,23 +36,38 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchBondDetailsFromDummyData() async {
     try {
       final dummyData = jsonDecode(DummyData.MarketEtBondInterestPrice(5));
-      final dummyData2 = jsonDecode(DummyData.MarketEtBondTrendingPrice(15));
+      final dummyData2 = jsonDecode(DummyData.MarketEtBondTrendingPrice);
       final dummyData3 = jsonDecode(DummyData.MarketOtcBondInterestPrice);
       final dummyData4 = jsonDecode(DummyData.MarketOtcBondTrendingPrice);
 
       dummyData.forEach((key, value) {
+        String interestPercentage = value['interest_percentage'] ?? "0.0";
+        if (interestPercentage.length > 2) {
+          interestPercentage = interestPercentage.substring(0, interestPercentage.length - 2) + "%";
+        }
+
         InterestEtBondList.add({
-          "prdt_name": value['prdt_name'] ?? "Unknown", // Provide default value if null
+          "prdt_name": value['prdt_name'] ?? "Unknown",
           "prdt_nick": value['prdt_nick'] ?? "Unknown",
           "code": value['code'] ?? "Unknown",
-          'kbp_crdt_grad_text': value['kbp_crdt_grad_text'] ?? "N/A",
-          'nxtm_int_dfrm_dt': value['nxtm_int_dfrm_dt'] ?? "N/A",
-          'expd_dt': value['expd_dt'] ?? "N/A",
-          'expd_asrc_erng_rt': value['expd_asrc_erng_rt'] ?? "0.0%",
-          'nice_crdt_grad_text': value['nice_crdt_grad_text'] ?? "N/A",
-          'total_askp_rsqn': value['total_askp_rsqn'] ?? "0"
+          "kbp_crdt_grad_text": value['kbp_crdt_grad_text'] ?? "N/A",
+          "nxtm_int_dfrm_dt": value['nxtm_int_dfrm_dt'] ?? "N/A",
+          "expd_dt": value['expd_dt'] ?? "N/A",
+          "YTM_after_tax": value['expd_asrc_erng_rt'] ?? "0.0%",
+          "nice_crdt_grad_text": value['nice_crdt_grad_text'] ?? "N/A",
+          "total_askp_rsqn": value['total_askp_rsqn'] ?? "0",
+          "issu_istt_name": value['issu_istt_name'] ?? "Unknown",
+          "YTM": value['YTM'] ?? "0.0",
+          "price_per_10": value['price_per_10'] ?? "0",
+          "prdt_type_cd": value['prdt_type_cd'] ?? "Unknown",
+          "bond_int_dfrm_mthd_cd": value['bond_int_dfrm_mthd_cd'] ?? "Unknown",
+          "int_pay_cycle": value['int_pay_cycle'] ?? "0",
+          "interest_percentage": interestPercentage,  // 수정된 이자율
+          "expt_income": value['expt_income'] ?? "0.0",
+          "duration": value['duration'] ?? "0.0"
         });
       });
+
 
       dummyData2.forEach((key, value) {
         TrendingEtBondList.add({
@@ -63,18 +78,33 @@ class _HomePageState extends State<HomePage> {
       });
 
       dummyData3.forEach((element) {
+        // interest_percentage의 마지막 두 자리 제거하고 % 붙이기
+        String interestPercentage = element['interest_percentage'] ?? "0.0";
+        if (interestPercentage.length > 2) {
+          interestPercentage = interestPercentage.substring(0, interestPercentage.length - 2) + "%";
+        }
+
         InterestOtcBondList.add({
-          "prdt_name": element['prdt_name'] ?? "Unknown",
-          "prdt_nick": element['prdt_nick'] ?? "Unknown",
+          "issu_istt_name": element['issu_istt_name'] ?? "Unknown",
           "code": element['code'] ?? "Unknown",
-          'kbp_crdt_grad_text': element['kbp_crdt_grad_text'] ?? "N/A",
-          'nxtm_int_dfrm_dt': element['nxtm_int_dfrm_dt'] ?? "N/A",
-          'expd_dt': element['expd_dt'] ?? "N/A",
-          'expd_asrc_erng_rt': element['expd_asrc_erng_rt'] ?? "0.0%",
-          'nice_crdt_grad_text': element['nice_crdt_grad_text'] ?? "N/A",
-          'total_askp_rsqn': element['total_askp_rsqn'] ?? "0"
+          "prdt_name": element['prdt_name'] ?? "Unknown",
+          "nice_crdt_grad_text": element['nice_crdt_grad_text'] ?? "N/A",
+          "issu_dt": element['issu_dt'] ?? "N/A",
+          "expd_dt": element['expd_dt'] ?? "N/A",
+          "YTM": element['YTM'] ?? "0.0",
+          "YTM_after_tax": element['YTM_after_tax'] ?? "0.0",
+          "price_per_10": element['price_per_10'] ?? "0",
+          "prdt_type_cd": element['prdt_type_cd'] ?? "Unknown",
+          "bond_int_dfrm_mthd_cd": element['bond_int_dfrm_mthd_cd'] ?? "Unknown",
+          "int_pay_cycle": element['int_pay_cycle'] ?? "0",
+          "interest_percentage": interestPercentage,  // 수정된 이자율
+          "nxtm_int_dfrm_dt": element['nxtm_int_dfrm_dt'] ?? "N/A",
+          "expt_income": element['expt_income'] ?? "0.0",
+          "duration": element['duration'] ?? "0.0",
+          "prdt_nick": element['prdt_nick'] ?? "Unknown",
         });
       });
+
 
       dummyData4.forEach((key, value) {
         TrendingOtcBondList.add({
@@ -94,7 +124,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: const Color(0xFFf1f9f9),
+        backgroundColor: const Color(0xFFF1F1F9),
         appBar: AppBar(
           scrolledUnderElevation: 0.0,
           title: const Text(
@@ -378,7 +408,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EtBondDescriptionPage(bondCode: bond['code']),
+                    builder: (context) => EtBondDescriptionPage(),
                   ),
                 );
               },
@@ -398,7 +428,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  "${bond['expd_asrc_erng_rt']}%",
+                  "${bond['expt_income']}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 30,
@@ -417,7 +447,15 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "신용 등급",
+                    "수익률",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(height: 5,),
+                  Text(
+                    "이자율",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -431,21 +469,21 @@ class _HomePageState extends State<HomePage> {
                       fontSize: 18,
                     ),
                   ),
-                  SizedBox(height: 5,),
-                  Text(
-                    "잔존 수량",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
                 ],
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    bond['kbp_crdt_grad_text'],
+                    "${bond['YTM_after_tax']}%",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 5,),
+                  Text(
+                    bond['interest_percentage'],
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -454,14 +492,6 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 5,),
                   Text(
                     bond['nice_crdt_grad_text'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 5,),
-                  Text(
-                    bond['total_askp_rsqn'],
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -534,7 +564,7 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => OtcBondDescriptionPage(bondCode: bond['code']))
+                          MaterialPageRoute(builder: (context) => OtcBondDescriptionPage())
                         );
                       },
                     ),
