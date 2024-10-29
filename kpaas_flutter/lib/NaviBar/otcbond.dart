@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:kpaas_flutter/apiconnectiontest/data_controller.dart';
 import 'package:kpaas_flutter/otcBondDescription.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
 
 class OtcBondPage extends StatefulWidget {
-  final List<dynamic> initialBondData;  // 처음에 받아온 데이터를 받을 변수
-  final String initialNextUrl;  // 처음 받아온 데이터의 next URL
+  final List<dynamic> initialBondData;
+  final String initialNextUrl;
 
-  const OtcBondPage({Key? key, required this.initialBondData, required this.initialNextUrl}) : super(key: key);  // 생성자 추가
+  const OtcBondPage({Key? key, required this.initialBondData, required this.initialNextUrl}) : super(key: key);
 
   @override
   _EtBondPageState createState() => _EtBondPageState();
@@ -18,8 +16,7 @@ class _EtBondPageState extends State<OtcBondPage> {
   final ScrollController _scrollController = ScrollController();
   List<dynamic> bondData = [];
   String? nextUrl;
-  bool isLoading = false;  // 데이터 로딩 상태
-  final DataController dataController = Get.put(DataController());  // DataController 가져오기
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -28,32 +25,27 @@ class _EtBondPageState extends State<OtcBondPage> {
     nextUrl = widget.initialNextUrl;
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading && nextUrl != null) {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading) {
         _fetchMoreData();
       }
     });
   }
+  String formatDate(String date) {
+    if (date.length == 8) {
+      return '${date.substring(2, 4)}.${date.substring(4, 6)}.${date.substring(6, 8)}';
+    }
+    return date;
+  }
 
   Future<void> _fetchMoreData() async {
-    if (nextUrl == null || isLoading) return;
-
     setState(() {
-      isLoading = true;
+      isLoading = true;  // 로딩 상태 시작
     });
 
-    try {
-      final response = await dataController.fetchEtBondData(nextUrl!);  // DataController 통해 데이터 요청
-      setState(() {
-        bondData.addAll(response['results']);
-        nextUrl = response['next'];
-      });
-    } catch (e) {
-      print('Error fetching more data: $e');
-    } finally {
-      setState(() {
-        isLoading = false;  // 로딩 상태 종료
-      });
-    }
+
+    setState(() {
+      isLoading = false;  // 로딩 상태 종료
+    });
   }
 
   @override
@@ -80,7 +72,7 @@ class _EtBondPageState extends State<OtcBondPage> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle, color: Colors.black), // 사용자 아이콘 추가
+            icon: const Icon(Icons.account_circle, color: Colors.black),
             onPressed: () {
               // 사용자 아이콘 클릭 시 MyPage로 이동
               Navigator.push(
@@ -92,15 +84,15 @@ class _EtBondPageState extends State<OtcBondPage> {
         ],
       ),
       body: Column(
+
         children: [
           Expanded(
             child: ListView.builder(
-              controller: _scrollController,
-              itemCount: bondData.length + 1,
+              controller: _scrollController,  // 스크롤 컨트롤러 설정
+              itemCount: bondData.length + 1,  // 데이터 개수 + 로딩 인디케이터
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  // 첫 번째 컨테이너 전에 간격을 추가
-                  return const SizedBox(height: 20);  // 원하는 크기의 간격 설정
+                  return const SizedBox(height: 20);  // 첫 번째 컨테이너 전에 간격 추가
                 }
 
                 final actualIndex = index - 1;  // 데이터는 실제로는 1부터 시작
@@ -115,9 +107,7 @@ class _EtBondPageState extends State<OtcBondPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => OtcBondDescriptionPage(
-                          bondCode: bondData[actualIndex]['code'],
-                        ),
+                        builder: (context) => OtcBondDescriptionPage(),
                       ),
                     );
                   },
@@ -133,116 +123,107 @@ class _EtBondPageState extends State<OtcBondPage> {
                           color: Colors.grey.withOpacity(0.5), // 그림자 색상
                           spreadRadius: 0,
                           blurRadius: 0,
-                          offset: const Offset(0,0),
+                          offset: const Offset(0, 0),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              bondData[actualIndex]['name'],  // 채권명
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(right: 15.0),
-                              child: Text(
-                                "신한 투자 증권",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          bondData[actualIndex]['prdt_name'] ?? 'N/A',  // 채권명
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        const SizedBox(height: 8,),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                children: [
-                                  Text(
-                                    '채권 위험도',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFF696969),
-                                      fontWeight: FontWeight.w500,
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      '이자 지급 주기',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'B+',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
+                                    Text(
+                                      "${bondData[actualIndex]['int_pay_cycle']?? 'N/A' }개월",  // 잔존 수량
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    '듀레이션',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFF696969),
-                                      fontWeight: FontWeight.w500,
+                                    const Text(
+                                      '듀레이션',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    '3.27',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
+                                    Text(
+                                      "${bondData[actualIndex]['duration'] ?? "N/A"}년",  // 듀레이션
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 7.0),
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      '신용 등급',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      bondData[actualIndex]['nice_crdt_grad_text'] ?? 'N/A',  // 신용 등급
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Text(
+                                      '만기일',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF696969),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      formatDate(bondData[actualIndex]['expd_dt']) ?? 'N/A',  // 만기일
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Column(
                                 children: [
-                                  Text(
-                                    '신용 등급',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFF696969),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    'AAA',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    '만기일',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFF696969),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    '27.03.02',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text(
+                                  const Text(
                                     '세후 수익률',
                                     style: TextStyle(
                                       fontSize: 16,
@@ -251,14 +232,14 @@ class _EtBondPageState extends State<OtcBondPage> {
                                     ),
                                   ),
                                   Text(
-                                    '4.2%',
-                                    style: TextStyle(
+                                    '${bondData[actualIndex]['YTM_after_tax'] ?? 'N/A'}%',  // 세후 수익률
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Text(
+                                  const Text(
                                     '발행일',
                                     style: TextStyle(
                                       fontSize: 16,
@@ -267,8 +248,8 @@ class _EtBondPageState extends State<OtcBondPage> {
                                     ),
                                   ),
                                   Text(
-                                    '23.02.01',
-                                    style: TextStyle(
+                                    formatDate(bondData[actualIndex]['issu_dt']) ?? 'N/A',  // 발행일
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -304,5 +285,3 @@ class _EtBondPageState extends State<OtcBondPage> {
     }
   }
 }
-
-
