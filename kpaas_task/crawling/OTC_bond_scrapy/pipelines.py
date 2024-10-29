@@ -4,6 +4,7 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 from calendar import month
 
+from django_celery_results.utils import now_localtime
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import datetime
@@ -28,7 +29,6 @@ class OtcBondScrapyPipeline:
             print('ERROR:', e)
 
     async def process_item(self, item, spider):
-        print('hello')
         if spider.name == 'miraeassetSpider' or spider.name == 'shinhanSpider' or spider.name == 'daishinSpider' or spider.name == 'kiwoomSpider':
             pub_date = item['pub_date']
             mat_date = item['mat_date']
@@ -38,7 +38,15 @@ class OtcBondScrapyPipeline:
                 item['nxt_int_date'] = self.nxt_int_date(pub_date, mat_date, int_cycle)
             item['expt_income'] = str(self.expt_money(float(item['price_per_10']), float(item['interest_percentage']), item['nxt_int_date'].replace('.', ''),
                                                   mat_date.replace('.', ''), int(int_cycle)))
-            item['duration'] = 'NONE'
+            item['duration'] = self.MacDuration(
+                item['int_pay_class'],
+                float(item['interest_percentage']),
+                10000,
+                float(item['YTM']),
+                item['nxt_int_date'].replace('.', ''),
+                mat_date.replace('.', ''),
+                int(int_cycle)
+            )
             self.myCursor.execute(
                 'insert into bonddb.Bonds(trading_company_name, bond_code, bond_name, danger_degree,' +
                 'pub_date, mat_date, YTM, YTM_after_tax, price_per_10, bond_type, int_pay_class, int_pay_cycle,' +
@@ -70,6 +78,10 @@ class OtcBondScrapyPipeline:
             #     expt_income = item['expt_income'],
             #     duration = item['duration']
             # )
+            # exists = await sync_to_async(OTC_Bond.objects.filter(pk=item['bond_code']).exists)()
+            # if exists:
+            #     inst = await sync_to_async(OTC_Bond.objects.get)(pk=item['bond_code'])
+            #     item['duration'] = self.duration(float(item['interest_percentage']), float(inst.interest_percentage), float(item['price_per_10']), float(inst.price_per_10))
             await sync_to_async(OTC_Bond.objects.update_or_create)(
                 code=item['bond_code'],  # pk로 설정된 필터 조건
                 defaults={  # 업데이트 또는 생성할 데이터
@@ -97,11 +109,8 @@ class OtcBondScrapyPipeline:
 
     # 다음 이자 지급일
     def nxt_int_date(self, pub_date, mat_date, int_cycle):
-        # sp = pub_date.split('.')
         pub_date = datetime.datetime(int(pub_date[:4]), int(pub_date[4:6]), int(pub_date[6:]))
-        # sp = mat_date.split('.')
         mat_date = datetime.datetime(int(mat_date[:4]), int(mat_date[4:6]), int(mat_date[6:]))
-        # print('hello', mat_date.strftime("%Y.%m.%d"))
         int_cycle = relativedelta(months=int(int_cycle))
         nxt_date = (pub_date + int_cycle)
         while nxt_date < datetime.datetime.now():
@@ -153,3 +162,52 @@ class OtcBondScrapyPipeline:
             next_interest_date += interest_cycle_period
             count += 1
         return count
+
+    def duration(self, now_int, pre_int, now_price, pre_price):
+        delta_int = now_int - pre_int
+        delta_price = now_price - pre_price
+        duration = round(-(1 + now_int) / delta_int * delta_price / now_price, 2)
+        return str(duration) # 년도만 원한다면
+
+    def MacDuration(self, int_type, interest_percentage, face_value, YTM, nxt_interest_date, mat_date, interest_cycle_period):
+        if '이표' in int_type:
+            # 할인율을 분기별로 계산
+            cnt_per_year = 12 / interest_cycle_period
+            one_plus_YTM = 1 + (YTM / 100 / cnt_per_year)
+
+            # 남은 이자 지급 횟수 계산 (만기일까지)
+            today = datetime.datetime.today()
+            maturity_date = datetime.datetime(int(mat_date[:4]), int(mat_date[4:6]),int(mat_date[6:]))
+            months_to_maturity = (maturity_date.year - today.year) * 12 + (maturity_date.month - today.month)
+            remain_count = int(months_to_maturity / interest_cycle_period)
+
+            # 쿠폰 이자 계산 (분기마다 지급)
+            coupon = (interest_percentage / 100) * face_value / cnt_per_year
+
+            now_value = 0  # 현재 가치의 총합
+            weight_value = 0  # 가중된 현재 가치의 총합
+
+            # 각 이자 지급 시점에 대한 듀레이션 계산
+            for i in range(1, remain_count + 1):
+                # 마지막 현금 흐름에는 원금을 포함
+                cash_flow = coupon if i < remain_count else (coupon + face_value)
+
+                # 분기별 할인율 적용하여 현재 가치 계산
+                coupon_div_ytm = cash_flow / pow(one_plus_YTM, i)
+
+                # 가중치를 연 단위로 조정하여 반영
+                weight = i / cnt_per_year
+                now_value += coupon_div_ytm
+                weight_value += coupon_div_ytm * weight
+
+            # 듀레이션 계산
+            mac_duration = weight_value / now_value
+            return round(mac_duration, 2)
+        else:
+            # 만기일 까지를 듀레이션으로 보장
+            specific_date = datetime.datetime(int(mat_date[:4]), int(mat_date[4:6]), int(mat_date[6:]))
+            today = datetime.datetime.today()
+            difference = (specific_date - today).days / 365.25
+            return round(difference, 2)
+
+
