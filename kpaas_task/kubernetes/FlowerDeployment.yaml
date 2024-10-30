@@ -1,41 +1,40 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web
+  name: celery-flower
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web
+      app: celery-flower
   template:
     metadata:
       labels:
-        app: web
+        app: celery-flower
     spec:
       containers:
-      - name: web
+      - name: celery-flower
         image: sungmin330/kpaas_task:latest
+        command: ["celery", "-A", "config", "flower"]
         ports:
-        - containerPort: 8000
+        - containerPort: 5555
         env:
         - name: CELERY_BROKER_URL
           valueFrom:
             configMapKeyRef:
               name: celery-config
               key: CELERY_BROKER_URL
-        command: ["python"]
-        args: ["manage.py", "runserver", "0.0.0.0:8000", "--settings=config.settings.production"]
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: web
+  name: celery-flower
 spec:
   selector:
-    app: web
+    app: celery-flower
   ports:
     - protocol: TCP
-      port: 80         # 클러스터 내부에서 사용될 포트
-      targetPort: 8000 # 컨테이너가 수신 대기 중인 포트
-      nodePort: 30000  # 외부에서 접근할 수 있는 포트 (옵션)
+      port: 5555
+      targetPort: 5555
   type: NodePort

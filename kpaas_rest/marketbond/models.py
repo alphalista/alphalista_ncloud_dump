@@ -15,6 +15,7 @@ class MarketBondCode(models.Model):
             models.UniqueConstraint(fields=['code'], name='unique_code_field')
         ]
 
+"""
 class MarketBond(models.Model):
     code = models.ForeignKey(MarketBondCode, on_delete=models.CASCADE)
     pdno = models.CharField(max_length=12, verbose_name="상품번호")
@@ -41,6 +42,12 @@ class MarketBond(models.Model):
         max_length=500, verbose_name="한국신용정보신용등급내용"
     )
     bond_prpr = models.CharField(max_length=112, verbose_name="채권현재가")
+    bond_askp1 = models.CharField(max_length=112, verbose_name="채권 매도호가1")
+    askp_rsqn1 = models.CharField(max_length=12, verbose_name="매도호가 잔량1")
+    bond_bidp1 = models.CharField(max_length=112, verbose_name="채권 매수호가1")
+    bidp_rsqn1 = models.CharField(max_length=12, verbose_name="매수호가 잔량1")
+
+"""
 
 
 # 장내채권 발행정보
@@ -489,7 +496,7 @@ class MarketBondInquireDailyPrice(models.Model):
 
 
 class ClickCount(models.Model):
-    marketbond = models.ForeignKey(MarketBondCode, on_delete=models.CASCADE)
+    code = models.ForeignKey(MarketBondCode, on_delete=models.CASCADE)
     count = models.PositiveIntegerField(default=0)
 
     def increment(self):

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from .models import (
-    MarketBond,
     MarketBondCode,
     MarketBondIssueInfo,
     MarketBondSearchInfo,
@@ -83,30 +82,10 @@ class MarketBondInquireDailyPriceSerializer(serializers.ModelSerializer):
         model = MarketBondInquireDailyPrice
         fields = "__all__"
 
-class MarketBondSerializer(serializers.ModelSerializer):
+class MarketBondSerializer(serializers.Serializer):
     issue_info_data = MarketBondIssueInfoSerializer(read_only=True)
     inquire_price_data = MarketBondInquirePriceSerializer(read_only=True)
-    class Meta:
-        model = MarketBond
-        fields = [
-            'code',
-            'pdno',
-            'prdt_type_cd',
-            'prdt_name',
-            'bond_clsf_kor_name',
-            'int_dfrm_mcnt',
-            'bond_int_dfrm_mthd_cd',
-            'prca_dfmt_term_mcnt',
-            'issu_istt_name',
-            'srfc_inrt',
-            'expd_asrc_erng_rt',
-            'int_dfrm_day_type_cd',
-            'issu_dt',
-            'expd_dt',
-            'nxtm_int_dfrm_dt',
-            'nice_crdt_grad_text',
-            'bond_prpr',
-        ]
+    inquire_asking_price_data = MarketBondInquireAskingPriceSerializer(read_only=True)
 
 class ClickCountSerializer(serializers.ModelSerializer):
     market_bond_code = MarketBondCodeSerializer(read_only=True)

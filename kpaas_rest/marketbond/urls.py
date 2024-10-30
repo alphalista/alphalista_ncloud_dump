@@ -14,16 +14,17 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register('marketbond', MarketBondViewSet)
-router.register("issue-info", MarketBondIssueInfoViewSet)
-router.register("search-info", MarketBondSearchInfoViewSet)
-router.register("inquire-asking-price", MarketBondInquireAskingPriceViewSet)
-router.register("avg-unit", MarketBondAvgUnitViewSet)
-router.register("inquire-daily-item-chart-price", MarketBondInquireDailyItemChartPriceViewSet)
-router.register("inquire-price", MarketBondInquirePriceViewSet)
-router.register("inquire-ccnl", MarketBondInquireCCNLViewSet)
-router.register("inquire-daily-price", MarketBondInquireDailyPriceViewSet),
-router.register("click-count", ClickCountViewSet),
+router.register('marketbond', MarketBondViewSet, basename='marketbond')
+router.register('issue-info', MarketBondIssueInfoViewSet, basename='marketbondissueinfo')
+router.register('search-info', MarketBondSearchInfoViewSet, basename='marketbondsearchinfo')
+router.register('inquire-asking-price', MarketBondInquireAskingPriceViewSet, basename='marketbondinquireaskingprice')
+router.register('avg-unit', MarketBondAvgUnitViewSet, basename='marketbondavgunit')
+router.register('inquire-daily-item-chart-price', MarketBondInquireDailyItemChartPriceViewSet, basename='marketbondinquiredailyitemchartprice')
+router.register('inquire-price', MarketBondInquirePriceViewSet, basename='marketbondinquireprice')
+router.register('inquire-ccnl', MarketBondInquireCCNLViewSet, basename='marketbondinquireccnl')
+router.register('inquire-daily-price', MarketBondInquireDailyPriceViewSet, basename='marketbondinquiredailyprice')
+router.register('click-count', ClickCountViewSet, basename='marketbondclickcount')
+
 
 
 urlpatterns = router.urls

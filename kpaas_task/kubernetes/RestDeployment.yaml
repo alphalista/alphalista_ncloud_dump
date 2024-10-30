@@ -1,0 +1,50 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-rest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-rest
+  template:
+    metadata:
+      labels:
+        app: django-rest
+    spec:
+      containers:
+      - name: django-rest
+        image: sungmin330/kpaas_rest:latest
+        command: [ "daphne" ]
+        args: [ "-b", "0.0.0.0", "-p", "8000", "kpaas_rest.asgi:application" ]
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /health/
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health/
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-rest
+spec:
+  selector:
+    app: django-rest
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: NodePort
