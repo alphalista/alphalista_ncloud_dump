@@ -43,7 +43,6 @@ class OtcBondScrapyPipeline:
                 float(item['interest_percentage']),
                 10000,
                 float(item['YTM']),
-                item['nxt_int_date'].replace('.', ''),
                 mat_date.replace('.', ''),
                 int(int_cycle)
             )
@@ -201,7 +200,7 @@ class OtcBondScrapyPipeline:
                 weight_value += coupon_div_ytm * weight
 
             # 듀레이션 계산
-            mac_duration = weight_value / now_value
+            mac_duration = weight_value / now_value if now_value != 0 else 0
             return round(mac_duration, 2)
         else:
             # 만기일 까지를 듀레이션으로 보장
