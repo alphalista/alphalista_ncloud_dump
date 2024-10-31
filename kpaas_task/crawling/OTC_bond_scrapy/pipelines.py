@@ -169,16 +169,19 @@ class OtcBondScrapyPipeline:
         return str(duration) # 년도만 원한다면
 
     def MacDuration(self, int_type, interest_percentage, face_value, YTM, mat_date, interest_cycle_period):
-        if '이표' in int_type:
+        # 남은 이자 지급 횟수 계산 (만기일까지)
+        today = datetime.datetime.today()
+        maturity_date = datetime.datetime(int(mat_date[:4]), int(mat_date[4:6]), int(mat_date[6:]))
+        months_to_maturity = (maturity_date.year - today.year) * 12 + (maturity_date.month - today.month)
+        remain_count = int(months_to_maturity / interest_cycle_period)
+
+        if '이표' in int_type and remain_count != 0:
             # 할인율을 분기별로 계산
             cnt_per_year = 12 / interest_cycle_period
             one_plus_YTM = 1 + (YTM / 100 / cnt_per_year)
 
-            # 남은 이자 지급 횟수 계산 (만기일까지)
-            today = datetime.datetime.today()
-            maturity_date = datetime.datetime(int(mat_date[:4]), int(mat_date[4:6]),int(mat_date[6:]))
-            months_to_maturity = (maturity_date.year - today.year) * 12 + (maturity_date.month - today.month)
-            remain_count = int(months_to_maturity / interest_cycle_period)
+
+
 
             # 쿠폰 이자 계산 (분기마다 지급)
             coupon = (interest_percentage / 100) * face_value / cnt_per_year
