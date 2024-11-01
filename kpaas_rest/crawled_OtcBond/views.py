@@ -8,8 +8,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/crawling/')))
 from crawling.models import OTC_Bond
-from .models import OTC_Bond_Interest
-from .serializers import OTC_Bond_Serializer, OTC_Bond_Interest_Serializer
+from .models import OTC_Bond_Interest, OTC_Bond_Holding
+from .serializers import OTC_Bond_Serializer, OTC_Bond_Interest_Serializer, OTC_Bond_Holding_Serializer
 
 
 class OTC_Bond_All(viewsets.ReadOnlyModelViewSet):
@@ -19,3 +19,7 @@ class OTC_Bond_All(viewsets.ReadOnlyModelViewSet):
 class OTC_Bond_Interest_view(viewsets.ModelViewSet):
     queryset = OTC_Bond_Interest.objects.all()
     serializer_class = OTC_Bond_Interest_Serializer
+
+class OTC_Bond_Holding_view(viewsets.ModelViewSet):
+    queryset = OTC_Bond_Holding.objects.all()
+    serializer_class = OTC_Bond_Holding_Serializer

@@ -15,3 +15,9 @@ class OTC_Bond_Interest(models.Model):
 
     class Meta:
         unique_together = ('user_id', 'bond_code')
+
+class OTC_Bond_Holding(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('user_id', 'bond_code')
