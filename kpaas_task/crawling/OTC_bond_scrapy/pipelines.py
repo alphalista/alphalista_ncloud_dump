@@ -36,8 +36,11 @@ class OtcBondScrapyPipeline:
             # 다음 이자 지급일 추가
             if spider.name != 'kiwoomSpider':
                 item['nxt_int_date'] = self.nxt_int_date(pub_date, mat_date, int_cycle)
-            item['expt_income'] = str(self.expt_money(float(item['price_per_10']), float(item['interest_percentage']), item['nxt_int_date'].replace('.', ''),
-                                                  mat_date.replace('.', ''), int(int_cycle)))
+            try:
+                item['expt_income'] = str(self.expt_money(float(item['price_per_10']), float(item['interest_percentage']), item['nxt_int_date'].replace('.', ''),
+                                                      mat_date.replace('.', ''), int(int_cycle)))
+            except ValueError:
+                item['expt_income'] = '측정불가'
             item['duration'] = self.MacDuration(
                 item['int_pay_class'],
                 float(item['interest_percentage']),
