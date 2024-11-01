@@ -1,22 +1,17 @@
 from django.db import models
-
+from django.contrib.auth.models import User
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/crawling/')))
+from crawling.models import OTC_Bond
 # Create your models here.
 
-class OTC_Bond(models.Model):
-    trading_company_name = models.CharField(max_length=100)
-    bond_code = models.CharField(max_length=100)
-    bond_name = models.CharField(max_length=100)
-    danger_degree = models.CharField(max_length=100)
-    pub_date = models.CharField(max_length=100)
-    mat_date = models.CharField(max_length=100)
-    YTM = models.CharField(max_length=100)
-    YTM_after_tax = models.CharField(max_length=100)
-    price_per_10 = models.CharField(max_length=100)
-    bond_type = models.CharField(max_length=100)
-    int_pay_class = models.CharField(max_length=100)
-    int_pay_cycle = models.CharField(max_length=100)
-    interest_percentage = models.CharField(max_length=100)
-    nxt_int_date = models.CharField(max_length=100)
-    expt_income = models.CharField(max_length=100)
-    # duration 추가
-    duration = models.CharField(max_length=100)
+
+# 장외 관심 채권
+class OTC_Bond_Interest(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user_id', 'bond_code')

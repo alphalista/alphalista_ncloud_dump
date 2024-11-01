@@ -1,4 +1,4 @@
-# from .models import OTC_Bond
+from .models import OTC_Bond_Interest
 from rest_framework import serializers
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
@@ -11,3 +11,7 @@ class OTC_Bond_Serializer(serializers.ModelSerializer):
         model = OTC_Bond
         fields = '__all__'
 
+class OTC_Bond_Interest_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTC_Bond_Interest
+        fields = '__all__'
