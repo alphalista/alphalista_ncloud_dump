@@ -201,6 +201,13 @@ CELERY_BEAT_SCHEDULE = {
             'expires': 60 * 1
         }
     },
+    'holding_to_expired': {
+        'task': 'crawling.tasks.holding_to_expired',
+        'schedule': 60 * 1,
+        'options': {
+            'expires': 60 * 2
+        }
+    }
 }
 
 # late expire
