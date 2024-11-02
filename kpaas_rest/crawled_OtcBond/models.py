@@ -26,3 +26,9 @@ class OTC_Bond_Holding(models.Model):
     class Meta:
         db_table = 'OTC_Bond_Holding'
         unique_together = ('user_id', 'bond_code')
+
+class OTC_Bond_Expired(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='expired_bonds')
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE, related_name='expired_bonds')
+    class Meta:
+        db_table = 'OTC_Bond_Expired'

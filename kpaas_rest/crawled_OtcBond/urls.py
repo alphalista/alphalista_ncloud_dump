@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import OTC_Bond_All, OTC_Bond_Interest_view, OTC_Bond_Holding_view
+
+from crawling.models import OTC_Bond_Expired
+from .views import OTC_Bond_All, OTC_Bond_Interest_view, OTC_Bond_Holding_view, OTC_Bond_Expired_view
 
 router = DefaultRouter()
 router.register("otc-bond-all", OTC_Bond_All)
@@ -21,5 +23,8 @@ urlpatterns = [
             'put': 'update',        # 전체 업데이트
             'patch': 'partial_update',  # 부분 업데이트
             'delete': 'destroy'     # 삭제
+    })),
+    path('expired/<str:user_id>/', OTC_Bond_Expired_view.as_view({
+        'get': 'list'
     }))
 ]

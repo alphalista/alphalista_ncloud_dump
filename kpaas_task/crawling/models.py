@@ -56,3 +56,6 @@ class OTC_Bond_Holding(models.Model):
 class OTC_Bond_Expired(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'OTC_Bond_Expired'
+        managed = False
