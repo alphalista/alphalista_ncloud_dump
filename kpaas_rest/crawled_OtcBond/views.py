@@ -17,9 +17,19 @@ class OTC_Bond_All(viewsets.ReadOnlyModelViewSet):
     serializer_class = OTC_Bond_Serializer
 
 class OTC_Bond_Interest_view(viewsets.ModelViewSet):
-    queryset = OTC_Bond_Interest.objects.all()
     serializer_class = OTC_Bond_Interest_Serializer
 
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        if user_id is not None:
+            return OTC_Bond_Interest.objects.filter(user_id=user_id)
+        return OTC_Bond_Interest.objects.all()
+
 class OTC_Bond_Holding_view(viewsets.ModelViewSet):
-    queryset = OTC_Bond_Holding.objects.all()
     serializer_class = OTC_Bond_Holding_Serializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        if user_id is not None:
+            return OTC_Bond_Holding.objects.filter(user_id=user_id)
+        return OTC_Bond_Holding.objects.all()
