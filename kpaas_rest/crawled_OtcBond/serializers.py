@@ -1,4 +1,4 @@
-from .models import OTC_Bond_Interest, OTC_Bond_Holding, OTC_Bond_Expired
+from .models import OTC_Bond_Interest, OTC_Bond_Holding, OTC_Bond_Expired, OtcBondPreDataDays, OtcBondPreDataWeeks, OtcBondPreDataMonths
 from rest_framework import serializers
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
@@ -26,3 +26,17 @@ class OTC_Bond_Expired_Serializer(serializers.ModelSerializer):
         model = OTC_Bond_Expired
         fields = '__all__'
 
+class OTC_Bond_Days_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = OtcBondPreDataDays
+        fields = '__all__'
+
+class OTC_Bond_Weeks_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = OtcBondPreDataWeeks
+        fields = '__all__'
+
+class OTC_Bond_Months_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = OtcBondPreDataMonths
+        fields = '__all__'

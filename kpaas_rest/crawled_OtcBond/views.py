@@ -7,9 +7,9 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/crawling/')))
-from crawling.models import OTC_Bond
-from .models import OTC_Bond_Interest, OTC_Bond_Holding, OTC_Bond_Expired
-from .serializers import OTC_Bond_Serializer, OTC_Bond_Interest_Serializer, OTC_Bond_Holding_Serializer, OTC_Bond_Expired_Serializer
+from crawling.models import OTC_Bond, OtcBondPreDataWeeks
+from .models import OTC_Bond_Interest, OTC_Bond_Holding, OTC_Bond_Expired, OtcBondPreDataDays, OtcBondPreDataMonths
+from .serializers import OTC_Bond_Serializer, OTC_Bond_Interest_Serializer, OTC_Bond_Holding_Serializer, OTC_Bond_Expired_Serializer, OTC_Bond_Days_Serializer, OTC_Bond_Weeks_Serializer, OTC_Bond_Months_Serializer
 
 
 class OTC_Bond_All(viewsets.ReadOnlyModelViewSet):
@@ -42,3 +42,28 @@ class OTC_Bond_Expired_view(viewsets.ReadOnlyModelViewSet):
         if user_id is not None:
             return OTC_Bond_Expired.objects.filter(user_id=user_id)
         return OTC_Bond_Expired.objects.all()
+
+class OTC_Bond_Days_View(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OTC_Bond_Days_Serializer
+
+    def get_queryset(self):
+        bond_code = self.kwargs.get('bond_code')
+        if bond_code is not None:
+            return OtcBondPreDataDays.objects.filter(bond_code=bond_code)
+        return OtcBondPreDataDays.objects.all()
+
+class OTC_Bond_Months_View(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OTC_Bond_Months_Serializer
+    def get_queryset(self):
+        bond_code = self.kwargs.get('bond_code')
+        if bond_code is not None:
+            return OtcBondPreDataMonths.objects.filter(bond_code=bond_code)
+        return OtcBondPreDataMonths.objects.all()
+
+class OTC_Bond_Weeks_View(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OTC_Bond_Weeks_Serializer
+    def get_queryset(self):
+        bond_code = self.kwargs.get('bond_code')
+        if bond_code is not None:
+            return OtcBondPreDataWeeks.objects.filter(bond_code=bond_code)
+        return OtcBondPreDataWeeks.objects.all()

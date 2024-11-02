@@ -59,3 +59,32 @@ class OTC_Bond_Expired(models.Model):
     class Meta:
         db_table = 'OTC_Bond_Expired'
         managed = False
+
+class OtcBondPreDataDays(models.Model):
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+    add_date = models.DateField(auto_now_add=True)
+    duration = models.CharField(max_length=100)
+    price = models.CharField(max_length=100)
+    class Meta:
+        db_table = 'OtcBondPreData'
+        managed = False
+
+class OtcBondPreDataWeeks(models.Model):
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+    add_date = models.DateField(auto_now_add=True)
+    duration = models.CharField(max_length=100)
+    price = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'OtcBondPreDataWeeks'
+        managed = False
+
+class OtcBondPreDataMonths(models.Model):
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+    add_date = models.DateField(auto_now_add=True)
+    duration = models.CharField(max_length=100)
+    price = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'OtcBondPreDataMonths'
+        managed = False
