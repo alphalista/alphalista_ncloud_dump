@@ -90,7 +90,7 @@ ASGI_APPLICATION = 'kpaas_rest.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+BASE_DIR2 = Path(__file__).resolve().parent.parent.parent
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -102,6 +102,13 @@ DATABASES = {
     }
 }
 
+"""
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR2 / 'kpaas_task/db.sqlite3',
+    }
+}
+"""
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

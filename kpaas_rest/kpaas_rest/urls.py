@@ -34,5 +34,8 @@ urlpatterns = [
         path('marketbond/', include('marketbond.urls')),
         # path('otcbond/', include("otcbond.urls")),
         path('news/', include("news.urls")),
+        path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+        # 크롤링 장외 채권 api
+        path('otcbond/', include("crawled_OtcBond.urls")),
     ])),
 ]
