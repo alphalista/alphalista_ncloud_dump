@@ -4,11 +4,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 
 import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../kpaas_task/crawling/')))
-from crawling.models import OTC_Bond
-from .models import OTC_Bond_Interest, OTC_Bond_Holding
+from .models import OTC_Bond_Interest, OTC_Bond_Holding, OTC_Bond
 from .serializers import OTC_Bond_Serializer, OTC_Bond_Interest_Serializer, OTC_Bond_Holding_Serializer
 
 

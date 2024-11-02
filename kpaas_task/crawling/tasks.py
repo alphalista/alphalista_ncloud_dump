@@ -1,35 +1,20 @@
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './OTC_bond_scrapy')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../crawling')))
+import os
 
-
-import logging
 from billiard.context import Process
 
-# from django.conf import settings
-from celery import app, shared_task
-from celery.utils.log import get_task_logger
-import scrapy
-from scrapy.crawler import CrawlerProcess, logger
+from celery import shared_task
+from scrapy.crawler import CrawlerProcess
 from .OTC_bond_scrapy.spiders import shinhanSpider, miraeassetSpider, daishinSpider, kiwoomSpider
 from scrapy.settings import Settings
-import django
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-# Django 프로젝트의 설정 파일 경로 설정
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')  # Django 프로젝트의 settings.py 경로로 대체
-django.setup()  # Django 앱 로드
 from .models import OTC_Bond
-from django.apps import apps
 
-from scrapy.utils.project import get_project_settings
 
-# settings = get_project_settings()
-settings = Settings()
-os.environ['SCRAPY_SETTINGS_MODULE'] = 'crawling.OTC_bond_scrapy.settings'
-settings_module_path = os.environ['SCRAPY_SETTINGS_MODULE']
-settings.setmodule(settings_module_path, priority='project')
 
 def crawling_start():
+    settings = Settings()
+    settings_file_path = os.path.join(os.path.dirname(__file__), 'OTC_bond_scrapy', 'settings.py')
+    settings.setmodule(settings_file_path, priority='project')
+
     process = CrawlerProcess(settings)
     process.crawl(miraeassetSpider.MiraeassetspiderSpider)
     process.crawl(shinhanSpider.ShinhanspiderSpider)
@@ -45,5 +30,4 @@ def crawling():
 
 @shared_task
 def delete_crawled_data():
-    # OTC_Bond = apps.get_model('crawling', 'OTC_Bond')
     OTC_Bond.objects.all().delete()

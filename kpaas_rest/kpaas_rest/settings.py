@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'marketbond',
     'otcbond',
     'news',
+    'crawled_OtcBond',
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
@@ -157,10 +158,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  # Adjust this if your BASE_DIR differs
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOWED_ORIGINS = [
-    "*",
-]
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOWED_ORIGINS = []
 
 # 추가 CORS 설정
 CORS_ALLOW_METHODS = [
