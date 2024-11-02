@@ -17,10 +17,12 @@ class OTC_Bond_Interest(models.Model):
         unique_together = ('user_id', 'bond_code')
 
 class OTC_Bond_Holding(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='holding_bonds')
+    bond_code = models.ForeignKey(OTC_Bond, on_delete=models.CASCADE, related_name='holding_bonds')
     price_per_10 = models.CharField(max_length=100) # 1만원 채권당 매수단가
     quantity = models.CharField(max_length=100)
     purchase_date = models.CharField(max_length=100)
+    expire_date = models.DateField()
     class Meta:
+        db_table = 'OTC_Bond_Holding'
         unique_together = ('user_id', 'bond_code')

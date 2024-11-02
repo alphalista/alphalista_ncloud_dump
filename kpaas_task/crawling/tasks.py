@@ -1,4 +1,6 @@
 import sys, os
+from django.utils import timezone
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './OTC_bond_scrapy')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../crawling')))
 
@@ -18,7 +20,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 # Django 프로젝트의 설정 파일 경로 설정
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')  # Django 프로젝트의 settings.py 경로로 대체
 django.setup()  # Django 앱 로드
-from .models import OTC_Bond
+from .models import OTC_Bond, OTC_Bond_Holding
 from django.apps import apps
 
 from scrapy.utils.project import get_project_settings
@@ -43,7 +45,9 @@ def crawling():
     proc.start()
     proc.join()
 
-@shared_task
-def delete_crawled_data():
-    # OTC_Bond = apps.get_model('crawling', 'OTC_Bond')
-    OTC_Bond.objects.all().delete()
+
+# @shared_task
+# def delete_holding_bonds():
+#     expired = OTC_Bond_Holding.objects.filter(date__lt=timezone.now())
+#     for instance in expired:
+

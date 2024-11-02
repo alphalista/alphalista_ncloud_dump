@@ -201,13 +201,6 @@ CELERY_BEAT_SCHEDULE = {
             'expires': 60 * 1
         }
     },
-    'delete_crawled_data': {
-        'task': 'crawling.tasks.delete_crawled_data',
-        'schedule': crontab(minute=0, hour=0),
-        'options': {
-            'expires': 60 * 1
-        }
-    }
 }
 
 # late expire
