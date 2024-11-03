@@ -13,13 +13,30 @@ dependencies:
   cupertino_icons: ^1.0.8
   dio: ^5.0.0
   get: ^4.6.5
-  fl_chart: ^0.69.0
   infinite_scroll_pagination: ^4.0.0
   url_launcher: ^6.1.7
   intl: ^0.19.0
   syncfusion_flutter_calendar: ^21.1.35
   scrollable_positioned_list: ^0.3.5
   syncfusion_flutter_charts: ^21.1.35
+  flutter_dotenv: ^5.1.0
+  kakao_flutter_sdk_user: ^1.9.5
+  flutter_native_splash: ^2.4.1
+  syncfusion_flutter_datagrid: ^21.2.10
+  dotted_line: ^3.2.3
+
+flutter_native_splash:
+  color: "#000000"
+  image: assets/images/SplashImage.png
+
+  android_12:
+    image: assets/images/SplashImage.png
+    icon_background_color: "#000000"
+
+  web:
+    image: assets/images/SplashImage.png
+    fullscreen: true
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -30,3 +47,10 @@ flutter:
   assets:
     - assets/images/FirstLoginImage.png
     - assets/images/SecondLoginImage.png
+    - assets/config/.env
+    - assets/images/SplashImage.png
+    - assets/images/First.png
+    - assets/images/Second.png
+    - assets/images/Third.png
+    - assets/images/Fourth.png
+    - assets/images/Fifth.png
