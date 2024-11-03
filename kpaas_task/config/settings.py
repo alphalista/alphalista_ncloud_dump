@@ -206,11 +206,11 @@ CELERY_BEAT_SCHEDULE = {
             'expires': 60 * 1
         }
     },
-    'delete_crawled_data': {
-        'task': 'crawling.tasks.delete_crawled_data',
-        'schedule': crontab(minute=0, hour=0),
+    'holding_to_expired': {
+        'task': 'crawling.tasks.holding_to_expired',
+        'schedule': 60 * 1,
         'options': {
-            'expires': 60 * 1
+            'expires': 60 * 2
         }
     }
 }
