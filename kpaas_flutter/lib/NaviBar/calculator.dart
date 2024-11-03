@@ -73,7 +73,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                '장외 채권',
+                '계산기',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
