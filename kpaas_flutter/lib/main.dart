@@ -7,7 +7,6 @@ import 'NaviBar/etbond.dart';
 import 'NaviBar/otcbond.dart';
 import 'NaviBar/calculator.dart';
 import 'NaviBar/news.dart';
-import 'MyPage/myPage_main.dart';
 import 'apiconnectiontest/data_controller.dart';
 import 'apiconnectiontest/dummy_data.dart';
 
@@ -19,6 +18,8 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+
       home: Scaffold(
         backgroundColor: Colors.grey[300],
         body: Center(
@@ -56,9 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> fetchBondData() async {
     try {
-      final etResponse = jsonDecode(DummyData.MarketEtBondAllList);
-      etBondData = etResponse['results'];
-      nextEtBondUrl = etResponse['next'];
+      final etResponse = await dataController.fetchEtBondData("https://leapbond.com/api/marketbond/issue-info/");
+      etBondData = etResponse['results'] ?? [];
+      nextEtBondUrl = etResponse['next'] ?? '';
 
       final otcResponse = jsonDecode(DummyData.MarketOtcBondAllList);
       otcBondData = otcResponse['results'];
