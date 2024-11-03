@@ -14,7 +14,7 @@ def market_bond_code_info():
     print('market codes')
 
 
-@shared_task(rate_limit='19/s')
+@shared_task(rate_limit='18/s')
 def fetch_market_bond_issue_info(pdno):
     try:
         print(pdno, 'issue')
@@ -30,7 +30,7 @@ def market_bond_issue_info():
     try:
         pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
         for pdno in pdno_list:
-            fetch_market_bond_issue_info(pdno)
+            fetch_market_bond_issue_info.delay(pdno)
     except Exception as e:
         print(e)
 
@@ -42,7 +42,7 @@ def market_bond_search_info():
     print('market bond search info')
 
 
-@shared_task(rate_limit='19/s')
+@shared_task(rate_limit='18/s')
 def fetch_market_bond_inquire_asking_price(pdno):
     try:
         print(pdno, 'asking')
@@ -59,7 +59,7 @@ def market_bond_inquire_asking_price():
     try:
         pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
         for pdno in pdno_list:
-            fetch_market_bond_inquire_asking_price(pdno)
+            fetch_market_bond_inquire_asking_price.delay(pdno)
     except Exception as e:
         print(e)
 
@@ -70,7 +70,7 @@ def market_bond_avg_unit():
     print('market bond avg unit')
 
 
-@shared_task(rate_limit='19/s')
+@shared_task(rate_limit='18/s')
 def fetch_market_bond_inquire_daily_itemchartprice(pdno):
     try:
         print(pdno, 'daily')
@@ -87,7 +87,7 @@ def market_bond_inquire_daily_itemchartprice():
     try:
         pdno_list = list(MarketBondCode.objects.values_list('code', flat=True))
         for pdno in pdno_list:
-            fetch_market_bond_inquire_daily_itemchartprice(pdno)
+            fetch_market_bond_inquire_daily_itemchartprice.delay(pdno)  # Use .delay() to enqueue tasks
     except Exception as e:
         print(e)
 

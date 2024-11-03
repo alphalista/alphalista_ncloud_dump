@@ -16,6 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse
+
+def health_check(request):
+    return HttpResponse("OK")
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -23,10 +27,15 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
+    path('', health_check, name='health_check'),  # 쿠버네티스 에러 방지(health 요청, 기본은 root 둘다 필요)
+    path('health/', health_check, name='health_check'),  # 쿠버네티스 에러 방지(health 요청, 기본은 root)
     path('admin/', admin.site.urls),
-    path('api/marketbond/', include("marketbond.urls")),
-    # path('api/otcbond/', include("otcbond.urls")),
-    path('api/news/', include("news.urls")),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/', include([
+        path('marketbond/', include('marketbond.urls')),
+        # path('otcbond/', include("otcbond.urls")),
+        path('news/', include("news.urls")),
+        path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+        # 크롤링 장외 채권 api
+        path('otcbond/', include("crawled_OtcBond.urls")),
+    ])),
 ]

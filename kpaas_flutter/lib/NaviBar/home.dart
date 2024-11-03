@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kpaas_flutter/bondDescription.dart';
+import 'package:kpaas_flutter/etBondDescription.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
 import 'package:kpaas_flutter/apiconnectiontest/dummy_data.dart';
+import 'package:kpaas_flutter/otcBondDescription.dart';
 import 'dart:convert';
 
 class HomePage extends StatefulWidget {
@@ -34,24 +35,39 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchBondDetailsFromDummyData() async {
     try {
-      final dummyData = jsonDecode(DummyData.MarketEtBondInterestPrice);
+      final dummyData = jsonDecode(DummyData.MarketEtBondInterestPrice(5));
       final dummyData2 = jsonDecode(DummyData.MarketEtBondTrendingPrice);
       final dummyData3 = jsonDecode(DummyData.MarketOtcBondInterestPrice);
       final dummyData4 = jsonDecode(DummyData.MarketOtcBondTrendingPrice);
 
       dummyData.forEach((key, value) {
+        String interestPercentage = value['interest_percentage'] ?? "0.0";
+        if (interestPercentage.length > 2) {
+          interestPercentage = interestPercentage.substring(0, interestPercentage.length - 2) + "%";
+        }
+
         InterestEtBondList.add({
-          "prdt_name": value['prdt_name'] ?? "Unknown", // Provide default value if null
+          "prdt_name": value['prdt_name'] ?? "Unknown",
           "prdt_nick": value['prdt_nick'] ?? "Unknown",
           "code": value['code'] ?? "Unknown",
-          'kbp_crdt_grad_text': value['kbp_crdt_grad_text'] ?? "N/A",
-          'nxtm_int_dfrm_dt': value['nxtm_int_dfrm_dt'] ?? "N/A",
-          'expd_dt': value['expd_dt'] ?? "N/A",
-          'expd_asrc_erng_rt': value['expd_asrc_erng_rt'] ?? "0.0%",
-          'nice_crdt_grad_text': value['nice_crdt_grad_text'] ?? "N/A",
-          'total_askp_rsqn': value['total_askp_rsqn'] ?? "0"
+          "kbp_crdt_grad_text": value['kbp_crdt_grad_text'] ?? "N/A",
+          "nxtm_int_dfrm_dt": value['nxtm_int_dfrm_dt'] ?? "N/A",
+          "expd_dt": value['expd_dt'] ?? "N/A",
+          "YTM_after_tax": value['expd_asrc_erng_rt'] ?? "0.0%",
+          "nice_crdt_grad_text": value['nice_crdt_grad_text'] ?? "N/A",
+          "total_askp_rsqn": value['total_askp_rsqn'] ?? "0",
+          "issu_istt_name": value['issu_istt_name'] ?? "Unknown",
+          "YTM": value['YTM'] ?? "0.0",
+          "price_per_10": value['price_per_10'] ?? "0",
+          "prdt_type_cd": value['prdt_type_cd'] ?? "Unknown",
+          "bond_int_dfrm_mthd_cd": value['bond_int_dfrm_mthd_cd'] ?? "Unknown",
+          "int_pay_cycle": value['int_pay_cycle'] ?? "0",
+          "interest_percentage": interestPercentage,  // 수정된 이자율
+          "expt_income": value['expt_income'] ?? "0.0",
+          "duration": value['duration'] ?? "0.0"
         });
       });
+
 
       dummyData2.forEach((key, value) {
         TrendingEtBondList.add({
@@ -62,18 +78,32 @@ class _HomePageState extends State<HomePage> {
       });
 
       dummyData3.forEach((element) {
+        String interestPercentage = element['interest_percentage'] ?? "0.0";
+        if (interestPercentage.length > 2) {
+          interestPercentage = interestPercentage.substring(0, interestPercentage.length - 2) + "%";
+        }
+
         InterestOtcBondList.add({
-          "prdt_name": element['prdt_name'] ?? "Unknown",
-          "prdt_nick": element['prdt_nick'] ?? "Unknown",
+          "issu_istt_name": element['issu_istt_name'] ?? "Unknown",
           "code": element['code'] ?? "Unknown",
-          'kbp_crdt_grad_text': element['kbp_crdt_grad_text'] ?? "N/A",
-          'nxtm_int_dfrm_dt': element['nxtm_int_dfrm_dt'] ?? "N/A",
-          'expd_dt': element['expd_dt'] ?? "N/A",
-          'expd_asrc_erng_rt': element['expd_asrc_erng_rt'] ?? "0.0%",
-          'nice_crdt_grad_text': element['nice_crdt_grad_text'] ?? "N/A",
-          'total_askp_rsqn': element['total_askp_rsqn'] ?? "0"
+          "prdt_name": element['prdt_name'] ?? "Unknown",
+          "nice_crdt_grad_text": element['nice_crdt_grad_text'] ?? "N/A",
+          "issu_dt": element['issu_dt'] ?? "N/A",
+          "expd_dt": element['expd_dt'] ?? "N/A",
+          "YTM": element['YTM'] ?? "0.0",
+          "YTM_after_tax": element['YTM_after_tax'] ?? "0.0",
+          "price_per_10": element['price_per_10'] ?? "0",
+          "prdt_type_cd": element['prdt_type_cd'] ?? "Unknown",
+          "bond_int_dfrm_mthd_cd": element['bond_int_dfrm_mthd_cd'] ?? "Unknown",
+          "int_pay_cycle": element['int_pay_cycle'] ?? "0",
+          "interest_percentage": interestPercentage,  // 수정된 이자율
+          "nxtm_int_dfrm_dt": element['nxtm_int_dfrm_dt'] ?? "N/A",
+          "expt_income": element['expt_income'] ?? "0.0",
+          "duration": element['duration'] ?? "0.0",
+          "prdt_nick": element['prdt_nick'] ?? "Unknown",
         });
       });
+
 
       dummyData4.forEach((key, value) {
         TrendingOtcBondList.add({
@@ -92,16 +122,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: const Color(0xFFf1f9f9),
+        backgroundColor: const Color(0xFFF1F1F9),
         appBar: AppBar(
           scrolledUnderElevation: 0.0,
-          title: const Text(
-            '홈',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+          title: const Padding(
+            padding: EdgeInsets.only(left: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  '홈페이지',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
             ),
           ),
           backgroundColor: Colors.white,
@@ -142,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                       Icon(Icons.whatshot, color: Colors.red),
                       SizedBox(width: 8),
                       Text(
-                        '오늘의 금리 어쩌구',
+                        'AJ네트웍스54가 트렌드에 올랐어요',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -374,12 +413,12 @@ class _HomePageState extends State<HomePage> {
           Container(
             child: GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BondDescriptionPage(bondCode: bond['code']),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => EtBondDescriptionPage(),
+                //   ),
+                // );
               },
               child: Text(
                 bond['prdt_name'],
@@ -397,7 +436,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  bond['expd_asrc_erng_rt'],
+                  "${bond['expt_income']}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 30,
@@ -416,7 +455,15 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "신용 등급",
+                    "수익률",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(height: 5,),
+                  Text(
+                    "이자율",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -430,21 +477,21 @@ class _HomePageState extends State<HomePage> {
                       fontSize: 18,
                     ),
                   ),
-                  SizedBox(height: 5,),
-                  Text(
-                    "잔존 수량",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
                 ],
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    bond['kbp_crdt_grad_text'],
+                    "${bond['YTM_after_tax']}%",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 5,),
+                  Text(
+                    bond['interest_percentage'],
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -453,14 +500,6 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 5,),
                   Text(
                     bond['nice_crdt_grad_text'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 5,),
-                  Text(
-                    bond['total_askp_rsqn'],
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -478,7 +517,6 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _buildTrendingBondRows() {
     List<Widget> rows = [];
 
-    // 버튼 상태에 따라 보여줄 리스트 결정
     List<Map<String, dynamic>> currentBondList = TrendingEtBond ? TrendingEtBondList : TrendingOtcBondList;
 
     // 리스트가 비어있으면 빈 상태 처리
@@ -533,13 +571,13 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => BondDescriptionPage(bondCode: bond['code']))
+                          MaterialPageRoute(builder: (context) => OtcBondDescriptionPage())
                         );
                       },
                     ),
                   ),
                   Text(
-                    bond['expd_asrc_erng_rt'],
+                    "${bond['expd_asrc_erng_rt']}%",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -564,34 +602,48 @@ class _HomePageState extends State<HomePage> {
 }
 
 class MeetingDataSource extends CalendarDataSource {
-MeetingDataSource(List<Appointment> source) {
-  appointments = source;
-}
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
+  }
 }
 
 List<Appointment> _getDataSource(List<Map<String, dynamic>> bondList1, List<Map<String, dynamic>> bondList2) {
   final List<Appointment> meetings = <Appointment>[];
 
-  // 첫 번째 리스트 처리
-  List bondLists = [...bondList1, ...bondList2]; // 리스트를 합침
+  // 두 리스트를 합침
+  List bondLists = [...bondList1, ...bondList2];
 
   for (var bond in bondLists) {
-    String? dateString = bond['nxtm_int_dfrm_dt'];
-
-    if (dateString != null && dateString.length == 8) {
-      DateTime bondDate = DateTime.parse(
-          '${dateString.substring(0, 4)}-${dateString.substring(4, 6)}-${dateString.substring(6, 8)}'
+    // 차기 이자 지급일 추가
+    String? nextInterestDate = bond['nxtm_int_dfrm_dt'];
+    if (nextInterestDate != null && nextInterestDate.length == 8) {
+      DateTime nextInterest = DateTime.parse(
+          '${nextInterestDate.substring(0, 4)}-${nextInterestDate.substring(4, 6)}-${nextInterestDate.substring(6, 8)}'
       );
 
       meetings.add(Appointment(
-        startTime: bondDate,
-        endTime: bondDate.add(const Duration(hours: 1)),
-        subject: bond['prdt_nick'] ?? 'No Name',
+        startTime: nextInterest,
+        endTime: nextInterest.add(const Duration(hours: 1)),
+        subject: '${bond['prdt_nick'] ?? 'No Name'}',
         color: Colors.blue,
       ));
     }
-  }
 
+    // 만기일 추가
+    String? expdDate = bond['expd_dt'];
+    if (expdDate != null && expdDate.length == 8) {
+      DateTime expd = DateTime.parse(
+          '${expdDate.substring(0, 4)}-${expdDate.substring(4, 6)}-${expdDate.substring(6, 8)}'
+      );
+
+      meetings.add(Appointment(
+        startTime: expd,
+        endTime: expd.add(const Duration(hours: 1)),
+        subject: '${bond['prdt_nick'] ?? 'No Name'}',
+        color: Colors.red,
+      ));
+    }
+  }
 
   return meetings;
 }

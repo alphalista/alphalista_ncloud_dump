@@ -8,6 +8,8 @@ KIS2*
 bond_code.*
 celerybeat*
 
+ConfigMap.yaml
+
 migrations/00*
 
 ### Django ###

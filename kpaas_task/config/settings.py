@@ -30,12 +30,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-obbj^l@u^(c$8lk&+t&mq9r-q$p1aw%v#*yx#d&sk_-23g$4_v'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'config.urls'
 
@@ -97,8 +100,12 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': '3306',
     }
 }
 
@@ -147,12 +154,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_RESULT_EXTENDED = True
+CELERY_TASK_TRACK_STARTED = True
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_WORKER_POOL = 'solo'  # 윈도우 에러 해결
+# CELERY_WORKER_POOL = 'solo'  # 윈도우 에러 해결
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 from celery.schedules import crontab
@@ -160,30 +168,30 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'market_bond_code_task': {
         'task': 'marketbond.tasks.market_bond_code_info',
-        'schedule': crontab(minute=0, hour=0),
+        'schedule': crontab(minute='0', hour='0'),
         'options': {
             'expires': 60 * 5
         }
     },
     'market_bond_issue_info_task': {
         'task': 'marketbond.tasks.market_bond_issue_info',
-        'schedule': crontab(minute=5, hour=0),
+        'schedule': crontab(minute='5', hour='0'),
         'options': {
-            'expires': 60 * 19
+            'expires': 60 * 59
         }
     },
     'market_bond_inquire_asking_price_task': {
         'task': 'marketbond.tasks.market_bond_inquire_asking_price',
         'schedule': crontab(minute='*/30', hour='9-16'),
         'options': {
-            'expires': 60 * 19
+            'expires': 60 * 29
         }
     },
     'market_bond_inquire_daily_itemchartprice': {
         'task': 'marketbond.tasks.market_bond_inquire_daily_itemchartprice',
-        'schedule': crontab(minute=30, hour=0),
+        'schedule': crontab(minute='10', hour='1'),
         'options': {
-            'expires': 60 * 19
+            'expires': 60 * 59
         }
     },
     'naver_news_task': {
@@ -192,7 +200,48 @@ CELERY_BEAT_SCHEDULE = {
         'options': {
             'expires': 60 * 14
         }
+    },
+    'crawling': {
+        'task': 'crawling.tasks.crawling',
+        'schedule': 60 * 2,
+        'options': {
+            'expires': 60 * 1
+        }
+    },
+    'holding_to_expired': {
+        'task': 'crawling.tasks.holding_to_expired',
+        'schedule': 60 * 1,
+        'options': {
+            'expires': 60 * 2
+        }
     }
 }
 
-# late expire
+
+# 보안 설정
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# 로깅 설정
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'errors.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

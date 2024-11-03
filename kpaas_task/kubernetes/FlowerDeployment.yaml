@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-flower
+  template:
+    metadata:
+      labels:
+        app: celery-flower
+    spec:
+      containers:
+      - name: celery-flower
+        image: sungmin330/kpaas_task:latest
+        command: ["celery", "-A", "config", "flower"]
+        ports:
+        - containerPort: 5555
+        env:
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: celery-config
+              key: CELERY_BROKER_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: celery-flower
+spec:
+  selector:
+    app: celery-flower
+  ports:
+    - protocol: TCP
+      port: 5555
+      targetPort: 5555
+  type: NodePort

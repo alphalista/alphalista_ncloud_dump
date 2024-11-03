@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'NaviBar/home.dart';
@@ -5,21 +7,29 @@ import 'NaviBar/etbond.dart';
 import 'NaviBar/otcbond.dart';
 import 'NaviBar/calculator.dart';
 import 'NaviBar/news.dart';
-import 'MyPage/myPage_main.dart';
 import 'apiconnectiontest/data_controller.dart';
+import 'apiconnectiontest/dummy_data.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MainPage());
 }
 
-class MyApp extends StatelessWidget {
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.white,
+      debugShowCheckedModeBanner: false,
+
+      home: Scaffold(
+        backgroundColor: Colors.grey[300],
+        body: Center(
+          child: Container(
+            width: 500,
+            color: Colors.white,
+            child: MyHomePage(),
+          ),
+        ),
       ),
-      home: MyHomePage(),
     );
   }
 }
@@ -46,15 +56,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchBondData() async {
-    final etResponse = await dataController.fetchEtBondData("http://10.0.2.2:8000/api/koreaib/market-bond-code/?limit=20");
-    etBondData = etResponse['results'];
-    nextEtBondUrl = etResponse['next'];
+    try {
+      final etResponse = await dataController.fetchEtBondData("https://leapbond.com/api/marketbond/issue-info/");
+      etBondData = etResponse['results'] ?? [];
+      nextEtBondUrl = etResponse['next'] ?? '';
 
-    final otcResponse = await dataController.fetchEtBondData("http://10.0.2.2:8000/api/koreaib/market-bond-code/?limit=20");
-    otcBondData = otcResponse['results']; // 장외채권 데이터 설정
-    nextOtcBondUrl = otcResponse['next']; // 다음 장외채권 페이지 URL 설정
+      final otcResponse = jsonDecode(DummyData.MarketOtcBondAllList);
+      otcBondData = otcResponse['results'];
+      nextOtcBondUrl = otcResponse['next'];
 
-    setState(() {});
+      setState(() {});
+    } catch (e) {
+      print('Error fetching bond data: $e');
+    }
   }
 
   Future<void> fetchNewsData() async {
@@ -67,21 +81,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: _selectedIndex == 0
-          ? HomePage() // 홈 페이지
+          ? HomePage()
           : _selectedIndex == 1
           ? EtBondPage(
-        initialBondData: etBondData,  // EtBondPage에 장내채권 데이터를 전달
-        initialNextUrl: nextEtBondUrl,  // EtBondPage에 next URL 전달
+        initialBondData: etBondData,
+        initialNextUrl: nextEtBondUrl,
       )
           : _selectedIndex == 2
           ? OtcBondPage(
-        initialBondData: otcBondData,  // OtcBondPage에 장외채권 데이터를 전달
-        initialNextUrl: nextOtcBondUrl,  // OtcBondPage에 next URL 전달
+        initialBondData: otcBondData,
+        initialNextUrl: nextOtcBondUrl,
       )
           : _selectedIndex == 3
-          ? CalculatorPage() // 투자 계산기 페이지
-          : NewsPage(newsData: newsData),  // 뉴스 페이지
-
+          ? CalculatorPage()
+          : NewsPage(newsData: newsData),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
@@ -110,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.blueGrey,
-        onTap: _onItemTapped,  // 아이템 클릭 시 호출
+        onTap: _onItemTapped,
       ),
     );
   }
