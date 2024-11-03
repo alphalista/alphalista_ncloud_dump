@@ -1,7 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from crawling.models import OTC_Bond_Expired
 from .views import *
 
 router = DefaultRouter()

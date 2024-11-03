@@ -37,6 +37,7 @@ class OTC_Bond(models.Model):
     expt_income = models.CharField(max_length=100)
     # duration 추가
     duration = models.CharField(max_length=100)
+    add_date = models.DateField(auto_now_add=True)
 
 # 장외 관심 채권
 class OTC_Bond_Interest(models.Model):
