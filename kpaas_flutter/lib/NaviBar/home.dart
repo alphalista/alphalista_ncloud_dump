@@ -78,7 +78,6 @@ class _HomePageState extends State<HomePage> {
       });
 
       dummyData3.forEach((element) {
-        // interest_percentage의 마지막 두 자리 제거하고 % 붙이기
         String interestPercentage = element['interest_percentage'] ?? "0.0";
         if (interestPercentage.length > 2) {
           interestPercentage = interestPercentage.substring(0, interestPercentage.length - 2) + "%";
@@ -123,16 +122,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: const Color(0xFFF1F1F9),
         appBar: AppBar(
           scrolledUnderElevation: 0.0,
-          title: const Text(
-            '홈',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+          title: const Padding(
+            padding: EdgeInsets.only(left: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  '홈페이지',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
             ),
           ),
           backgroundColor: Colors.white,
@@ -173,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                       Icon(Icons.whatshot, color: Colors.red),
                       SizedBox(width: 8),
                       Text(
-                        '오늘의 금리 어쩌구',
+                        'AJ네트웍스54가 트렌드에 올랐어요',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -509,7 +517,6 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _buildTrendingBondRows() {
     List<Widget> rows = [];
 
-    // 버튼 상태에 따라 보여줄 리스트 결정
     List<Map<String, dynamic>> currentBondList = TrendingEtBond ? TrendingEtBondList : TrendingOtcBondList;
 
     // 리스트가 비어있으면 빈 상태 처리
@@ -617,7 +624,7 @@ List<Appointment> _getDataSource(List<Map<String, dynamic>> bondList1, List<Map<
       meetings.add(Appointment(
         startTime: nextInterest,
         endTime: nextInterest.add(const Duration(hours: 1)),
-        subject: '${bond['prdt_nick'] ?? 'No Name'} - 이자 지급일',
+        subject: '${bond['prdt_nick'] ?? 'No Name'}',
         color: Colors.blue,
       ));
     }
@@ -632,7 +639,7 @@ List<Appointment> _getDataSource(List<Map<String, dynamic>> bondList1, List<Map<
       meetings.add(Appointment(
         startTime: expd,
         endTime: expd.add(const Duration(hours: 1)),
-        subject: '${bond['prdt_nick'] ?? 'No Name'} - 만기일',
+        subject: '${bond['prdt_nick'] ?? 'No Name'}',
         color: Colors.red,
       ));
     }

@@ -71,12 +71,20 @@ class _NewsPageState extends State<NewsPage> {
       backgroundColor: const Color(0xFFF1F1F9),
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
-        title: const Text(
-          '뉴스',
-          style: TextStyle(
-            color: Colors.black, // 텍스트 색상 검정
-            fontWeight: FontWeight.bold, // 텍스트 굵게
-            fontSize: 20, // 폰트 크기
+        title: const Padding(
+          padding: EdgeInsets.only(left: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                '뉴스',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ],
           ),
         ),
         backgroundColor: Colors.white, // 앱바 배경색

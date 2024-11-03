@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kpaas_flutter/etBondDescription.dart';
 import 'package:kpaas_flutter/MyPage/myPage_main.dart';
+import 'package:get/get.dart';
+import '../apiconnectiontest/data_controller.dart';
 
 class EtBondPage extends StatefulWidget {
   final List<dynamic> initialBondData;
@@ -26,26 +28,38 @@ class _EtBondPageState extends State<EtBondPage> {
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading) {
-        _fetchMoreData();  // 스크롤이 끝에 도달하면 추가 데이터 요청
+        _fetchMoreData();
       }
     });
   }
-  String formatDate(String date) {
-    if (date.length == 8) {
-      return '${date.substring(2, 4)}.${date.substring(4, 6)}.${date.substring(6, 8)}';
-    }
-    return date; // 형식이 맞지 않을 경우 원래 값 반환
+
+  String formatDate(String? date) {
+    if (date == null || date.length != 8) return 'N/A';
+    return '${date.substring(2, 4)}.${date.substring(4, 6)}.${date.substring(6, 8)}';
   }
 
   Future<void> _fetchMoreData() async {
-    setState(() {
-      isLoading = true;  // 로딩 상태 시작
-    });
-
+    if (nextUrl == null || nextUrl!.isEmpty) return; // Check if there's a next URL
 
     setState(() {
-      isLoading = false;  // 로딩 상태 종료
+      isLoading = true;  // Start loading state
     });
+
+    try {
+      // Assuming you have a function in DataController to fetch the data
+      final dataController = Get.find<DataController>();
+      final response = await dataController.fetchEtBondData(nextUrl!);
+      setState(() {
+        bondData.addAll(response['results'] ?? []); // Append new data to bondData
+        nextUrl = response['next']; // Update next URL
+      });
+    } catch (e) {
+      print("Error loading more data: $e");
+    } finally {
+      setState(() {
+        isLoading = false;  // End loading state
+      });
+    }
   }
 
   @override
@@ -54,56 +68,125 @@ class _EtBondPageState extends State<EtBondPage> {
     super.dispose();
   }
 
+  final List<Map<String, dynamic>> buttonData = [
+    {'label': '전체', 'onPressed': () => print("채권 종류 1 선택")},
+    {'label': '위험도', 'onPressed': () => print("채권 종류 2 선택")},
+    {'label': '신용 등급', 'onPressed': () => print("채권 종류 3 선택")},
+    {'label': '수익율', 'onPressed': () => print("채권 종류 4 선택")},
+    {'label': '잔존 수량', 'onPressed': () => print("채권 종류 5 선택")},
+  ];
+
+  int selectedButtonIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F1F9),
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
-        title: const Text(
-          '장내 채권',
-          style: TextStyle(
-            color: Colors.black, // 텍스트 색상 검정
-            fontWeight: FontWeight.bold, // 텍스트 굵게
-            fontSize: 20, // 폰트 크기
+        title: const Padding(
+          padding: EdgeInsets.only(left: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                '장외 채권',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.white, // 앱바 배경색
+        backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle, color: Colors.black), // 사용자 아이콘 추가
+            icon: const Icon(Icons.account_circle, color: Colors.black),
             onPressed: () {
-              // 사용자 아이콘 클릭 시 MyPage로 이동
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => MyPage()), // MyPage로 이동
+                MaterialPageRoute(builder: (context) => MyPage()),
               );
             },
           ),
         ],
       ),
       body: Column(
-
         children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 15),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: '채권 검색...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                onChanged: (query) {},
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: buttonData.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  Map<String, dynamic> button = entry.value;
+                  bool isSelected = selectedButtonIndex == index;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedButtonIndex = index;
+                          button['onPressed'](); // 각 버튼의 기능 호출
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(0, 50),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                        backgroundColor: isSelected ? Colors.blueAccent : Colors.white,
+                        side: const BorderSide(
+                          color: Color(0xFFD2E1FC),
+                        ),
+                      ),
+                      child: Text(
+                        button['label'],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.blueAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
           Expanded(
             child: ListView.builder(
-              controller: _scrollController,  // 스크롤 컨트롤러 설정
-              itemCount: bondData.length + 1,  // 데이터 개수 + 로딩 인디케이터
+              controller: _scrollController,
+              itemCount: bondData.length + 1,
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return const SizedBox(height: 20);  // 첫 번째 컨테이너 전에 간격 추가
+                if (index == bondData.length) {
+                  return _buildLoadingIndicator();
                 }
-
-                final actualIndex = index - 1;  // 데이터는 실제로는 1부터 시작
-
-                if (actualIndex == bondData.length) {
-                  return _buildLoadingIndicator();  // 로딩 인디케이터 표시
-                }
+                final actualIndex = index;
 
                 return GestureDetector(
                   onTap: () {
-                    // 제목 클릭 시 BondDescriptionPage로 이동, bondCode 전달
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -131,7 +214,7 @@ class _EtBondPageState extends State<EtBondPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          bondData[actualIndex]['name'] ?? 'N/A',  // 채권명
+                          bondData[actualIndex]['name'] ?? 'N/A',
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -248,7 +331,7 @@ class _EtBondPageState extends State<EtBondPage> {
                                     ),
                                   ),
                                   Text(
-                                    formatDate(bondData[actualIndex]['issu_dt']) ?? 'N/A',  // 발행일
+                                    formatDate(bondData[actualIndex]['issu_dt']),
                                     style: const TextStyle(
                                       fontSize: 20,
                                       color: Colors.black,
