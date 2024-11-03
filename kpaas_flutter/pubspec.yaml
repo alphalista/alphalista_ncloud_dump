@@ -23,6 +23,7 @@ dependencies:
   kakao_flutter_sdk_user: ^1.9.5
   flutter_native_splash: ^2.4.1
   syncfusion_flutter_datagrid: ^21.2.10
+  dotted_line: ^3.2.3
 
 flutter_native_splash:
   color: "#000000"
@@ -48,3 +49,8 @@ flutter:
     - assets/images/SecondLoginImage.png
     - assets/config/.env
     - assets/images/SplashImage.png
+    - assets/images/First.png
+    - assets/images/Second.png
+    - assets/images/Third.png
+    - assets/images/Fourth.png
+    - assets/images/Fifth.png
