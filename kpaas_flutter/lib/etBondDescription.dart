@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: const EtBondDescriptionPage(),
-    theme: ThemeData(
-      primarySwatch: Colors.blue,
-    ),
-  ));
-}
-
 class EtBondDescriptionPage extends StatefulWidget {
-  const EtBondDescriptionPage({Key? key}) : super(key: key);
+  final String pdno;
+  const EtBondDescriptionPage({Key? key, required this.pdno}) : super(key: key);
 
   @override
   _EtBondDescriptionPageState createState() => _EtBondDescriptionPageState();
 }
 
 class _EtBondDescriptionPageState extends State<EtBondDescriptionPage> {
-  // 선택 상태 관리 변수
   String selectedText = '정보';
   String selectedChart = '시가';
   String selectedPeriod = '주별';
+  bool isLoading = true;
+  Map<String, dynamic> bondDetails = {};
 
   late List<QuoteData> quoteData;
   late QuoteDataSource quoteDataSource;
@@ -94,7 +87,6 @@ class _EtBondDescriptionPageState extends State<EtBondDescriptionPage> {
     quoteDataSource = QuoteDataSource(quoteData);
   }
 
-  // 텍스트 데이터 변경 함수
   void _updateTextContent(String type) {
     setState(() {
       selectedText = type;
@@ -126,6 +118,31 @@ class _EtBondDescriptionPageState extends State<EtBondDescriptionPage> {
       _updateChartData(selectedChart);
     });
   }
+
+  Future<void> fetchBondDetails() async {
+    final url = 'https://leapbond.com/api/marketbond/marketbond/data/?pdno=${widget.pdno}';
+    try {
+      final response = await Dio().get(url);
+      if (response.statusCode == 200) {
+        setState(() {
+          bondDetails = response.data;
+          isLoading = false; // 데이터를 가져오면 로딩 상태를 false로 변경
+        });
+      } else {
+        print("Failed to fetch bond data: ${response.statusMessage}");
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching bond data: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {

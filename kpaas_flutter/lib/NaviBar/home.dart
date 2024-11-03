@@ -413,12 +413,12 @@ class _HomePageState extends State<HomePage> {
           Container(
             child: GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EtBondDescriptionPage(),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => EtBondDescriptionPage(),
+                //   ),
+                // );
               },
               child: Text(
                 bond['prdt_name'],
