@@ -1259,4 +1259,32 @@ class DummyData {
     }
 }
   ''';
+
+  static String MarketEtBondOwningPrice = '''
+{
+    "t1": {
+        "prdt_name": "AJ네트웍스70-2",
+    },
+    "t2": {
+        "prdt_name": "BNK금융지주 조건부자본증권(상)1-2",
+    },
+    "t3": {
+        "prdt_name": "한국전력공사채권1204",
+    },
+    "t4": {
+        "prdt_name": "BNK캐피탈197-2",
+    }
+}
+  ''';
+
+  static String MarketOtcBondOwningPrice = '''
+{
+    "t1": {
+        "prdt_name": "AJ네트웍스70-2",
+    },
+    "t2": {
+        "prdt_name": "BNK금융지주 조건부자본증권(상)1-2",
+    }
+}
+  ''';
 }

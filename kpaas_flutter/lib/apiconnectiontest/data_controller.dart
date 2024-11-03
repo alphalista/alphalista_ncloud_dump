@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'api_service.dart';
-import 'dummy_data.dart';
 
 class DataController extends GetxController {
   var isLoading = true.obs;
@@ -21,7 +18,7 @@ class DataController extends GetxController {
     isLoading(true);
     try {
       final response = await apiService.fetchData(
-          'http://localhost:8000/api/koreaib/news/data/?query=%EC%82%BC%EC%84%B1&sort=date');
+          'http://localhost:8000/api/koreaib/news/data/?query=채권&sort=date');
       if (response.statusCode == 200 && response.data is Map) {
         news.clear();
         news.assignAll(response.data['items']); // 뉴스 데이터 업데이트
@@ -43,9 +40,11 @@ class DataController extends GetxController {
     try {
       final response = await apiService.fetchData(url);
       if (response.statusCode == 200 && response.data is Map) {
-        market_bond_code.assignAll(response.data['results']);
-        market_bond_nextPage.value = response.data['next'] ?? '';
-        return response.data;
+        var data = response.data;
+        market_bond_code.assignAll(data['results']);
+        market_bond_nextPage.value = data['next'] ?? '';
+        market_bond_prevPage.value = data['previous'] ?? '';
+        return data;
       } else {
         print('Failed to load market bond data');
         return {};
